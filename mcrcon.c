@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-1013, Tiiffi <tiiffi -> gmail_dot_com>
+ * Copyright (c) 2012-2013, Tiiffi <tiiffi -> gmail_dot_com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
