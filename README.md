@@ -1,6 +1,6 @@
 ####Compiling:
 
-```gcc -std=gnu99 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
+```gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
 
 On windows, remember to link with winsockets.
 Add ```-lws2_32``` to compiler command line on Mingw GCC.
