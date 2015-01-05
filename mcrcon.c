@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     if(argc < 2) usage();
 
     opterr = 1; /* default error handler enabled */
-    while((opt = getopt(argc, argv, "tcshH:p:P:i")) != -1)
+    while((opt = getopt(argc, argv, "rtcshH:p:P:i")) != -1)
     {
         switch(opt)
         {
