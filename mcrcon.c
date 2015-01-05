@@ -331,7 +331,7 @@ void usage(void)
         "  -H\t\tHost address or ip.\n"
         "  -P\t\tPort. Default: 25575.\n"
         "  -c\t\tDo not print colors. Disables bukkit color printing.\n"
-        "  -r\t\tPrint everything in raw mode.\n"
+        "  -r\t\tPrint everything in raw mode.\n\t\tGood for debugging and custom handling of the output.\n"
     ,stdout);
 
     puts("\nInvidual commands must be separated with spaces.\n");
