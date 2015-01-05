@@ -204,6 +204,7 @@ int             run_commands(int argc, char *argv[]);
 
 
 /* some globals */
+int raw_output = 0;
 int silent_mode = 0;
 int print_colors = 1;
 int connection_alive = 1;
@@ -254,6 +255,7 @@ int main(int argc, char *argv[])
             case 't':
             case 'I':
             case 'i': terminal_mode = 1;    break;
+            case 'r': raw_output = 1;       break;
             case 'h':
             case '?':
                 /*
