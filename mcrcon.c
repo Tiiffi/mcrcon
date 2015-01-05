@@ -331,6 +331,7 @@ void usage(void)
         "  -H\t\tHost address or ip.\n"
         "  -P\t\tPort. Default: 25575.\n"
         "  -c\t\tDo not print colors. Disables bukkit color printing.\n"
+        "  -r\t\tPrint everything in raw mode.\n"
     ,stdout);
 
     puts("\nInvidual commands must be separated with spaces.\n");
@@ -553,9 +554,15 @@ void print_color(int color)
     }
 }
 
-/* this hacky mess might use some optmizing */
+/* this hacky mess might use some optimizing */
 void packet_print(rc_packet *packet)
 {
+	if (raw_output == 1) {
+		for(int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
+		
+		return;
+	}
+	
     int i;
     int def_color = 0;
 
