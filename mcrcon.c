@@ -557,11 +557,10 @@ void print_color(int color)
 /* this hacky mess might use some optimizing */
 void packet_print(rc_packet *packet)
 {
-	if (raw_output == 1) {
-		for(int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
-		
-		return;
-	}
+    if (raw_output == 1) {
+        for(int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
+        return;
+    }
 	
     int i;
     int def_color = 0;
