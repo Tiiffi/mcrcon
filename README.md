@@ -23,7 +23,7 @@ Option:
   -P		Port. Default: 25575.
   -c		Do not print colors. Disables bukkit color printing.
   -r		Print everything in raw mode.
-		Good for debugging and custom handling of the output.
+		    Good for debugging and custom handling of the output.
 ```
 Invidual commands must be separated with spaces.
 
