@@ -30,3 +30,10 @@ Invidual commands must be separated with spaces.
 Example:
   ```mcrcon -c -H 192.168.1.42 -P 9999 -p password cmd1 "cmd2 with spaces"```
 
+####Enable rcon
+Remember enable rcon by changing/adding these lines to server.properties
+```
+enable-rcon=true
+rcon.password=your_rcon_pasword
+rcon.port=9999
+```
