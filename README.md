@@ -10,8 +10,6 @@ Add ```-lws2_32``` to compiler command line on Mingw GCC.
 
 ---
 
-More info [here](http://forums.bukkit.org/threads/admin-rcon-mcrcon-remote-connection-client-for-minecraft-servers.70910/).
-
 ####Usage:
 Usage: mcrcon [OPTIONS]... [COMMANDS]...
 Sends rcon commands to minecraft server.
