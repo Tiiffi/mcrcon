@@ -1,6 +1,9 @@
 ####Compiling:
 
+Raw command:
 ```gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
+
+or run **make**.
 
 On windows, remember to link with winsockets.
 Add ```-lws2_32``` to compiler command line on Mingw GCC.
