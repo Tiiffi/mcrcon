@@ -39,14 +39,15 @@ rcon.port=9999
 ```
 
 ####Contact:
- WWW:  http://sourceforge.net/projects/mcrcon/
- MAIL: tiiffi_at_gmail_dot_com
- IRC:  tiiffi @ quakenet
- BUG REPORTS: https://github.com/Tiiffi/mcrcon/issues
+```
+WWW:            http://sourceforge.net/projects/mcrcon/
+MAIL:           tiiffi_at_gmail_dot_com
+IRC:            tiiffi @ quakenet
+BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues
+```
 
 ####Version history
- 0.0.5
-
+0.0.5
   - IPv6 support!
      * Thanks to 'Tanja84dk' for addressing the real need of IPv6.
 
@@ -66,23 +67,20 @@ rcon.port=9999
 
   - Client now tries to clean the incoming socket data if last package was out of spec.
 
-
- 0.0.4
+0.0.4
   - Reverted back to default getopts options error handler (opterr = 1).
     Custom error handler requires rewriting.
   - Some comestic fixes in program output strings.
   - Program usage(); function now waits for enter before exiting on Windows.
 
-
- 0.0.3
+0.0.3
   - Colors are now supported on Windows too!
   - Terminal mode is now triggered with "-t" flag. "-i" flag still works for
     backwards compatibility.
   - Bug fixes (Packet size check always evaluating false and color validity
     check always evaluating true).
 
-
- 0.0.2
+0.0.2
   - License changed from 'ISC License' to 'zlib/libpng License'.
   - Bug fixes & code cleanups
   - Interactive mode (-i flag). Client acts as interactive terminal.
@@ -90,8 +88,7 @@ rcon.port=9999
     If connecting or authentication fails, the return value is -1.
   - Colors are now enabled by default. Now '-c' flag disables the color support.
 
-
- 0.0.1
+0.0.1
   - Added experimental support for bukkit colors.
     Should work with any sh compatible shell.
   - Packet string data limited to max 2048 (DATA_BUFFSIZE) bytes.
