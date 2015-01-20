@@ -74,7 +74,7 @@ rcon.port=9999
 ######0.0.4
   - Reverted back to default getopts options error handler (opterr = 1).
     Custom error handler requires rewriting.
-  - Some comestic fixes in program output strings.
+  - Some cosmetic changes in program output strings.
   - Program usage(); function now waits for enter before exiting on Windows.
 
 ######0.0.3
