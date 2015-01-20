@@ -3,7 +3,7 @@
 Raw command:
 ```gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
 
-or run **make**.
+or just run **make**.
 
 On windows, remember to link with winsockets.
 Add ```-lws2_32``` to compiler command line on Mingw GCC.
@@ -31,7 +31,7 @@ Invidual commands must be separated with spaces.
 Example:
   ```mcrcon -c -H 192.168.1.42 -P 9999 -p password cmd1 "cmd2 with spaces"```
 
-####Enable rcon
+#####Enable rcon
 Remember to enable rcon by changing/adding these lines to ```server.properties``` file.
 ```
 enable-rcon=true
@@ -39,16 +39,20 @@ rcon.password=your_rcon_pasword
 rcon.port=9999
 ```
 
+---
+
 ####Contact:
 ```
-WWW:            http://sourceforge.net/projects/mcrcon/
+WWW:            [http://sourceforge.net/projects/mcrcon/] (http://sourceforge.net/projects/mcrcon/)
 MAIL:           tiiffi_at_gmail_dot_com
 IRC:            tiiffi @ quakenet
-BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues
+BUG REPORTS:    [https://github.com/Tiiffi/mcrcon/issues] (https://github.com/Tiiffi/mcrcon/issues)
 ```
 
-####Version history
-0.0.5
+---
+
+####Version history:
+######0.0.5
   - IPv6 support!
      * Thanks to 'Tanja84dk' for addressing the real need of IPv6.
 
@@ -68,20 +72,20 @@ BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues
 
   - Client now tries to clean the incoming socket data if last package was out of spec.
 
-0.0.4
+######0.0.4
   - Reverted back to default getopts options error handler (opterr = 1).
     Custom error handler requires rewriting.
   - Some comestic fixes in program output strings.
   - Program usage(); function now waits for enter before exiting on Windows.
 
-0.0.3
+######0.0.3
   - Colors are now supported on Windows too!
   - Terminal mode is now triggered with "-t" flag. "-i" flag still works for
     backwards compatibility.
   - Bug fixes (Packet size check always evaluating false and color validity
     check always evaluating true).
 
-0.0.2
+######0.0.2
   - License changed from 'ISC License' to 'zlib/libpng License'.
   - Bug fixes & code cleanups
   - Interactive mode (-i flag). Client acts as interactive terminal.
@@ -89,7 +93,7 @@ BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues
     If connecting or authentication fails, the return value is -1.
   - Colors are now enabled by default. Now '-c' flag disables the color support.
 
-0.0.1
+######0.0.1
   - Added experimental support for bukkit colors.
     Should work with any sh compatible shell.
   - Packet string data limited to max 2048 (DATA_BUFFSIZE) bytes.
