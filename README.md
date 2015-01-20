@@ -43,10 +43,10 @@ rcon.port=9999
 
 ####Contact:
 ```
-WWW:            [http://sourceforge.net/projects/mcrcon/] (http://sourceforge.net/projects/mcrcon/)
+WWW:            [http://sourceforge.net/projects/mcrcon/](http://sourceforge.net/projects/mcrcon/)
 MAIL:           tiiffi_at_gmail_dot_com
 IRC:            tiiffi @ quakenet
-BUG REPORTS:    [https://github.com/Tiiffi/mcrcon/issues] (https://github.com/Tiiffi/mcrcon/issues)
+BUG REPORTS:    [https://github.com/Tiiffi/mcrcon/issues](https://github.com/Tiiffi/mcrcon/issues)
 ```
 
 ---
