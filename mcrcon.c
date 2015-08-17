@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, Tiiffi <tiiffi -> gmail_dot_com>
+ * Copyright (c) 2012-2015, Tiiffi <tiiffi -> gmail_dot_com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
     }
 
     if(optind == argc && terminal_mode == 0) {
-        fputs("No commands specified.\n\n", stdout);
+        fputs("No commands specified, if you want to use Terminal Mode, use the -t flag.\n\n", stdout);
         usage();
     }
 
