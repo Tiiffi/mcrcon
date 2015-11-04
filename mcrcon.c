@@ -217,18 +217,18 @@ void usage(void)
         "Usage: "IN_NAME" [OPTIONS]... [COMMANDS]...\n"
         "Sends rcon commands to minecraft server.\n\n"
         "Option:\n"
-        "  -h\t\tPrints usage.\n"
+        "  -h\t\tPrint usage.\n"
         "  -s\t\tSilent mode. Do not print data received from rcon.\n"
         "  -t\t\tTerminal mode. Acts as interactive terminal.\n"
         "  -p\t\tRcon password. Default: \"\".\n"
         "  -H\t\tHost address or ip.\n"
         "  -P\t\tPort. Default: 25575.\n"
-        "  -c\t\tDo not print colors. Disables bukkit color printing.\n"
-        "  -r\t\tPrint everything in raw mode.\n\t\tGood for debugging and custom handling of the output.\n"
+        "  -c\t\tDisable colors.\n"
+        "  -r\t\tOutput raw packets.\n\t\tGood for debugging and custom handling of the output.\n"
     ,stdout);
 
-    puts("\nInvidual commands must be separated with spaces.\n");
-    puts("Example:\n  "IN_NAME" -c -H 192.168.1.42 -P 9999 -p password cmd1 \"cmd2 with spaces\"\n");
+    puts("\nCommands must be separated with spaces.\n");
+    puts("Example:\n  "IN_NAME" -c -H 192.168.1.42 -P 9999 -p password cmd1 \"cmd2 arg1 arg2\"\n");
     puts("minecraft rcon ("IN_NAME") "VERSION".\nReport bugs to tiiffi_at_gmail_dot_com.\n");
 
     #ifdef _WIN32
