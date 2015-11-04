@@ -228,7 +228,7 @@ void usage(void)
     ,stdout);
 
     puts("\nCommands must be separated with spaces.\n");
-    puts("Example:\n  "IN_NAME" -c -H 192.168.1.42 -P 9999 -p password cmd1 \"cmd2 arg1 arg2\"\n");
+    puts("Example:\n  "IN_NAME" -c -H 192.168.1.42 -P 25575 -p password cmd1 \"cmd2 arg1 arg2\"\n");
     puts("minecraft rcon ("IN_NAME") "VERSION".\nReport bugs to tiiffi_at_gmail_dot_com.\n");
 
     #ifdef _WIN32
