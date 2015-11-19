@@ -50,7 +50,7 @@
 #define RCON_AUTHENTICATE       3
 #define RCON_RESPONSEVALUE      0
 #define RCON_AUTH_RESPONSE      2
-#define RCON_PID                42
+#define RCON_PID                0xBADC0DE
 
 /* Safe value I think. This should me made dynamic for more stable performance! */
 #define DATA_BUFFSIZE 10240
@@ -68,22 +68,31 @@ typedef struct _rc_packet {
     /* ignoring string2 atm.. */
 } rc_packet;
 
-/* functions */
+
+// =============================================
+//  FUNCTIONS
+// =============================================
+
+// Networking
+#ifdef _WIN32
+void    net_init_WSA(void);
+#endif
+
+void    net_close(int sd);
+int     net_connect(const char *host, const char *port);
+int     net_send(int sd, const char *buffer, size_t size);
+
+int             net_send_packet(int sd, rc_packet *packet);
+rc_packet*      net_recv_packet(int sd);
+
+int             net_clean_incoming(int sd, int size);
+
+// Other stuff
 void            usage(void);
 void            error(char *errstring);
 #ifndef _WIN32
 void            print_color(int color);
 #endif
-
-struct addrinfo *net_resolve(char *host, char *port);
-void            net_close_socket(int sd);
-int             net_open_socket(char *host, char *port);
-int             net_send_packet(int sd, rc_packet *packet);
-rc_packet*      net_recv_packet(int sd);
-#ifdef _WIN32
-void            net_init_WSA(void);
-#endif
-int             net_clean_incoming(int sd, int size);
 
 rc_packet*      packet_build(int id, int cmd, char *s1);
 void            packet_print(rc_packet *packet);
@@ -96,7 +105,9 @@ int             run_terminal_mode(int rsock);
 int             run_commands(int argc, char *argv[]);
 
 
-/* some globals */
+// =============================================
+//  GLOBAL VARIABLES
+// =============================================
 int raw_output = 0;
 int silent_mode = 0;
 int print_colors = 1;
@@ -110,7 +121,7 @@ int rsock; /* rcon socket */
 
 /* safety stuff (windows is still misbehaving) */
 void exit_proc(void) {
-    if(rsock != -1) net_close_socket(rsock);
+    if(rsock != -1) net_close(rsock);
 }
 
 /* Check windows & linux behaviour !!! */
@@ -188,7 +199,7 @@ int main(int argc, char *argv[])
     #endif
 
     /* open socket */
-    rsock = net_open_socket(host, port);
+    rsock = net_connect(host, port);
 
     /* auth & commands */
     if(rcon_auth(rsock, pass))
@@ -205,7 +216,7 @@ int main(int argc, char *argv[])
     }
 
     /* cleanup */
-    net_close_socket(rsock);
+    net_close(rsock);
     rsock = -1;
 
     return ret;
@@ -244,48 +255,8 @@ void error(char *errstring)
     exit(-1);
 }
 
-#ifdef _WIN32
-void net_init_WSA(void)
-{
-    WSADATA wsadata;
-    int err;
-
-    err = WSAStartup(MAKEWORD(1, 1), &wsadata);
-    if(err != 0)
-    {
-        fprintf(stderr, "WSAStartup failed. Errno: %d.\n", err);
-        exit(-1);
-    }
-}
-#endif
-
-struct addrinfo *net_resolve(char *host, char *port)
-{
-    /* !!! This function should be integrated to open_socket function for cleaner code !!! */
-
-    //struct in_addr6 serveraddr;
-    struct addrinfo hints, *result;
-    int ret;
-
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    /* hints.ai_flags    = AI_NUMERICSERV; // Windows retardism */
-
-    ret = getaddrinfo(host, port, &hints, &result);
-    if(ret != 0)
-    {
-        if(ret == EAI_SERVICE) fprintf(stderr, "Invalid port (%s).\n", port);
-        fprintf(stderr, "Error: Unable to resolve hostname (%s).\n", host);
-        exit(-1);
-    }
-
-    return result;
-}
-
 /* socket close and cleanup */
-void net_close_socket(int sd)
+void net_close(int sd)
 {
     #ifdef _WIN32
         closesocket(sd);
@@ -296,34 +267,85 @@ void net_close_socket(int sd)
 }
 
 /* Opens and connects socket */
-int net_open_socket(char *host, char *port)
+int net_connect(const char *host, const char *port)
 {
     int sd;
 
-    struct addrinfo *serverinfo;
+    struct addrinfo hints = {0};
+    struct addrinfo *server_info, *p;
 
-    serverinfo = net_resolve(host, port);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
 
-    sd = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol);
-    if(sd < 0)
-	{
-        #ifdef _WIN32
-            WSACleanup();
-        #endif
-        freeaddrinfo(serverinfo);
-        error("Error: cannot create socket.\n");
-	}
+    #ifdef _WIN32
+        net_init_WSA();
+    #endif
 
-    if(connect(sd, serverinfo->ai_addr, serverinfo->ai_addrlen) != 0)
+    // Get host address info
+    int result = getaddrinfo(host, port, &hints, &server_info);
+    if (result != 0)
     {
-        net_close_socket(sd);
-        fprintf(stderr, "Error: connection failed (%s).\n", host);
-        freeaddrinfo(serverinfo);
-        exit(-1);
+        if (result == EAI_SERVICE)
+        {
+            fprintf(stderr, "Invalid port %s.\n", port);
+        }
+        if (result == EAI_NONAME)
+        {
+            fprintf(stderr, "Unable to resolve hostname %s.\n", host);
+        }
+        else
+        {
+            fprintf(stderr, "getaddrinfo() error %d.\n", result);
+        }
+        exit(EXIT_FAILURE);
     }
 
-    freeaddrinfo(serverinfo);
+    // Go through the hosts and try to connect
+    for (p = server_info; p != NULL; p = p->ai_next)
+    {
+        sd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (sd == -1) continue;
+
+        result = connect(sd, p->ai_addr, p->ai_addrlen);
+        if (result == -1)
+        {
+            net_close(sd);
+            continue;
+        }
+
+        break;
+    }
+
+    if (p == NULL) {
+        fprintf(stderr, "Failed to connect.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Cheating because Windows is retarded (inet_ntop function missing)
+    fprintf(stdout, "Connected to %s:%s.\n", host, port);
+
+    freeaddrinfo(server_info);
+
     return sd;
+}
+
+int net_send(int sd, const char *buffer, size_t size)
+{
+    size_t sent = 0;
+    size_t left = size;
+
+    while (sent < size)
+    {
+        int result = send(sd, buffer + sent, left, 0);
+
+        if (result == -1) return -1;
+
+        sent += result;
+        left -= sent;
+    }
+
+    return 0;
 }
 
 int net_send_packet(int sd, rc_packet *packet)
