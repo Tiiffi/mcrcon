@@ -1,7 +1,7 @@
 ####Compiling:
 
 Compile with GCC or CLANG:
-```cc -std=gnu99 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
+```cc -std=gnu11 -Wpedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
 
 or just run **make**.
 
