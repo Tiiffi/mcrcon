@@ -32,7 +32,7 @@
 
 #ifdef _WIN32
     /* for name resolving on windows */
-    #define _WIN32_WINNT 0x0501
+    //#define _WIN32_WINNT 0x0501
 
     #include <ws2tcpip.h>
     #include <winsock2.h>
@@ -176,12 +176,12 @@ int main(int argc, char *argv[])
 
 		/* else fprintf (stderr, "Unknown option -%c\n\n", optopt); */
 
-		usage();
-		break;
+			usage();
+			break;
 
-		default: abort();
+			default: exit(-1);
+		}
 	}
-}
 
 	if (host == NULL)
 	{
@@ -269,32 +269,30 @@ void error(char *errstring)
 #ifdef _WIN32
 void net_init_WSA(void)
 {
-    WSADATA wsadata;
-    int err;
+	WSADATA wsadata;
 
-    err = WSAStartup(MAKEWORD(1, 1), &wsadata);
-    if(err != 0)
-    {
-        fprintf(stderr, "WSAStartup failed. Errno: %d.\n", err);
-        exit(-1);
-    }
+	// Request winsock 2.2 for now.
+	// Should be compatible down to Win XP.
+	WORD version = MAKEWORD(2, 2);
+
+	int err = WSAStartup(version, &wsadata);
+	if (err != 0)
+	{
+		fprintf(stderr, "WSAStartup failed. Error: %d.\n", err);
+		exit(-1);
+	}
 }
 #endif
-/*
-void net_get_last_error(int ret)
-{
 
-}
-*/
 /* socket close and cleanup */
 void net_close(int sd)
 {
-	#ifdef _WIN32
-	  closesocket(sd);
-	  WSACleanup();
-	#else
-	  close(sd);
-	#endif
+#ifdef _WIN32
+	closesocket(sd);
+	WSACleanup();
+#else
+	close(sd);
+#endif
 }
 
 /* Opens and connects socket */
