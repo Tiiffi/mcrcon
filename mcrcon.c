@@ -27,6 +27,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
+#include <unistd.h>
 
 #ifdef _WIN32
     /* for name resolving on windows */
@@ -36,7 +38,6 @@
     #include <winsock2.h>
     #include <windows.h>
 #else
-    #include <unistd.h>
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -78,36 +79,35 @@ typedef struct _rc_packet {
 bool is_bigendian(void);
 int32_t reverse_int32(int32_t n);
 
+// Network related functions
 #ifdef _WIN32
-void    net_init_WSA(void);
+void		net_init_WSA(void);
 #endif
+void		net_close(int sd);
+int		net_connect(const char *host, const char *port);
+int		net_send(int sd, const uint8_t *buffer, size_t size);
 
-void            net_close(int sd);
-int             net_connect(const char *host, const char *port);
-int             net_send(int sd, const uint8_t *buffer, size_t size);
+int		net_send_packet(int sd, rc_packet *packet);
+rc_packet*	net_recv_packet(int sd);
 
-int             net_send_packet(int sd, rc_packet *packet);
-rc_packet*      net_recv_packet(int sd);
-
-int             net_clean_incoming(int sd, int size);
+int		net_clean_incoming(int sd, int size);
 
 // Other stuff
-void            usage(void);
-void            error(char *errstring);
+void		usage(void);
+void		error(char *errstring);
 #ifndef _WIN32
-void            print_color(int color);
+void		print_color(int color);
 #endif
 
-rc_packet*      packet_build(int id, int cmd, char *s1);
-void            packet_print(rc_packet *packet);
+rc_packet*	packet_build(int id, int cmd, char *s1);
+void		packet_print(rc_packet *packet);
 
-int             rcon_auth(int rsock, char *passwd);
-int             rcon_command(int rsock, char *command);
+int		rcon_auth(int rsock, char *passwd);
+int		rcon_command(int rsock, char *command);
 
-int             get_line(char *buffer, int len);
-int             run_terminal_mode(int rsock);
-int             run_commands(int argc, char *argv[]);
-
+int		get_line(char *buffer, int len);
+int		run_terminal_mode(int rsock);
+int		run_commands(int argc, char *argv[]);
 
 // =============================================
 //  GLOBAL VARIABLES
@@ -266,6 +266,26 @@ void error(char *errstring)
 	exit(-1);
 }
 
+#ifdef _WIN32
+void net_init_WSA(void)
+{
+    WSADATA wsadata;
+    int err;
+
+    err = WSAStartup(MAKEWORD(1, 1), &wsadata);
+    if(err != 0)
+    {
+        fprintf(stderr, "WSAStartup failed. Errno: %d.\n", err);
+        exit(-1);
+    }
+}
+#endif
+/*
+void net_get_last_error(int ret)
+{
+
+}
+*/
 /* socket close and cleanup */
 void net_close(int sd)
 {
@@ -278,6 +298,8 @@ void net_close(int sd)
 }
 
 /* Opens and connects socket */
+/* http://man7.org/linux/man-pages/man3/getaddrinfo.3.html */
+/* https://bugs.chromium.org/p/chromium/issues/detail?id=44489 */
 int net_connect(const char *host, const char *port)
 {
 	int sd;
@@ -297,7 +319,12 @@ int net_connect(const char *host, const char *port)
 	int ret = getaddrinfo(host, port, &hints, &server_info);
 	if (ret != 0)
 	{
-		fprintf("getaddrinfo(): %s\n", gai_strerror(ret));
+		fprintf(stderr, "Name resolution failed.\n");
+		#ifdef _WIN32
+			fprintf(stderr, "Error %d: %s", ret, gai_strerror(ret));
+		#else
+			fprintf(stderr, "Error %d: %s\n", ret, gai_strerror(ret));
+		#endif
 		exit(EXIT_FAILURE);
 	}
 
@@ -318,13 +345,18 @@ int net_connect(const char *host, const char *port)
 		break;
 	}
 
-	freeaddrinfo(server_info);
-
 	if (p == NULL)
 	{
-		fprintf(stderr, "Failed to connect.\n");
+		/* TODO (Tiiffi): Check why windows does not report errors */
+		fprintf(stderr, "Connection failed.\n");
+		#ifndef _WIN32
+			fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+		#endif
+		freeaddrinfo(server_info);
 		exit(EXIT_FAILURE);
 	}
+
+	freeaddrinfo(server_info);
 
 	fprintf(stdout, "Connected to %s:%s\n", host, port);
 
@@ -399,7 +431,7 @@ rc_packet *net_recv_packet(int sd)
 
 		if(psize > DATA_BUFFSIZE  || psize < 0) psize = DATA_BUFFSIZE;
 		net_clean_incoming(sd, psize);
-	
+
 		return NULL;
 	}
 
@@ -489,7 +521,7 @@ void packet_print(rc_packet *packet)
 		for(int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
 		return;
 	}
-	
+
 	int i;
 	int def_color = 0;
 
@@ -583,7 +615,7 @@ uint8_t *packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string
 #define MIN_PACKET_SIZE (size_t) 10
 #define MAX_STRING_SIZE (size_t) (MAX_PACKET_SIZE - 2 - 3 * sizeof(int32_t))
 #define SIZEOF_PACKET(x) (size_t) (x.size + sizeof(int32_t))
- 
+
 struct rcon_packet
 {
 	int32_t size;
@@ -635,7 +667,7 @@ int rcon_auth(int rsock, char *passwd)
 
 int rcon_command(int rsock, char *command)
 {
-	int ret;
+	int ret; (void) ret;
 
 	size_t size;
 	uint8_t *p = packet_build_malloc(&size, RCON_PID, RCON_EXEC_COMMAND, command);
