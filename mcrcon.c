@@ -86,10 +86,8 @@ void		net_init_WSA(void);
 void		net_close(int sd);
 int		net_connect(const char *host, const char *port);
 int		net_send(int sd, const uint8_t *buffer, size_t size);
-
 int		net_send_packet(int sd, rc_packet *packet);
 rc_packet*	net_recv_packet(int sd);
-
 int		net_clean_incoming(int sd, int size);
 
 // Other stuff
@@ -100,6 +98,7 @@ void		print_color(int color);
 #endif
 
 rc_packet*	packet_build(int id, int cmd, char *s1);
+uint8_t		*packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string);
 void		packet_print(rc_packet *packet);
 
 int		rcon_auth(int rsock, char *passwd);
@@ -361,14 +360,14 @@ int net_connect(const char *host, const char *port)
 	return sd;
 }
 
-int net_send(int sd, const uint8_t *buffer, size_t size)
+int net_send(int sd, const uint8_t *buff, size_t size)
 {
 	size_t sent = 0;
 	size_t left = size;
 
 	while (sent < size)
 	{
-		int result = send(sd, buffer + sent, left, 0);
+		int result = send(sd, (const char *) buff + sent, left, 0);
 
 		if (result == -1) return -1;
 
@@ -632,7 +631,7 @@ struct rcon_packet packet_build_new(int32_t id, int32_t cmd, char *string)
 		string_length = MAX_STRING_SIZE;
 		fprintf(stderr,
 			"Warning: command string is too long. Truncating to "
-			"%d characters.\n", MAX_STRING_SIZE
+			"%u characters.\n", MAX_STRING_SIZE
 		);
 	}
 
