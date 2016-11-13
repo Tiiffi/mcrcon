@@ -1,0 +1,33 @@
+.\" Process this file with
+.\" groff -man -Tascii mcrcon.1
+.\"
+.TH MCRCON 1 "November 2016" "Version 0.0.5"
+.SH NAME 
+mcrcon \- sends rcon commands to a Minecraft server
+.SH SYNOPSIS
+.B mcrcon [
+options
+.B ] [
+commands
+.B ]
+.SH DESCRIPTION
+.B mcrcon
+Mcrcon is Minecraft rcon client / terminal with bukkit coloring support.
+It is well suited for remote administration and to be used as part of automated server maintenance scripts.
+.SH OPTIONS
+.IP -h
+Print usage instructions.
+.IP -s
+Silent mode. Do not print data received from rcon.
+.IP -t
+Terminal mode. Act as an interactive terminal.
+.IP -p
+Rcon password. Default is "".
+.IP -H
+Hostname or IP address to connect to.
+.IP -P
+Port to connect to. Default is 25575.
+.IP -C
+Color off. Disables bukkit color printing.
+.SH BUGS
+Bugs can be reported to tiiffi@gmail.com or https://github.com/Tiiffi/mcrcon/issues/
