@@ -19,6 +19,18 @@ CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
 all:
 	$(CROSS_COMPILE)$(CC) $(CFLAGS) -o $(EXENAME) mcrcon.c $(LINKER)
 
+ifneq ($(OS), Windows_NT)
+install:
+	cp $(EXENAME) /usr/local/bin/$(EXENAME)
+	chmod 0755 /usr/local/bin/$(EXENAME)
+	cp mcrcon.1 /usr/local/share/man/man1/mcrcon.1
+	chmod 0644 /usr/local/share/man/man1/mcrcon.1
+	@echo "\nmcrcon installed. Run 'make uninstall' if you want to uninstall.\n"
+uninstall:
+	rm -f /usr/local/bin/$(EXENAME)
+	rm -f /usr/local/share/man/man1/mcrcon.1
+	@echo "\nmcrcon uninstalled.\n"
+endif
+
 clean:
 	$(RM) $(EXENAME)
-

@@ -58,17 +58,17 @@
 /* Safe value I think. This should me made dynamic for more stable performance! */
 #define DATA_BUFFSIZE 10240
 
-#define VERSION "0.0.5"
+#define VERSION "0.0.6"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION
 
-/* rcon packet structure */
+// rcon packet structure
 typedef struct _rc_packet {
     int size;
     int id;
     int cmd;
     char data[DATA_BUFFSIZE];
-    /* ignoring string2 atm.. */
+    // ignoring string2 atm.
 } rc_packet;
 
 /* =================================== */
@@ -76,7 +76,7 @@ typedef struct _rc_packet {
 /* =================================== */
 
 // endianness related functions
-bool is_bigendian(void);
+bool    is_bigendian(void);
 int32_t reverse_int32(int32_t n);
 
 // Network related functions
@@ -90,13 +90,17 @@ int		net_send_packet(int sd, rc_packet *packet);
 rc_packet*	net_recv_packet(int sd);
 int		net_clean_incoming(int sd, int size);
 
-// Other stuff
+// Misc stuff
 void		usage(void);
 void		error(char *errstring);
 #ifndef _WIN32
 void		print_color(int color);
 #endif
+int		get_line(char *buffer, int len);
+int		run_terminal_mode(int rsock);
+int		run_commands(int argc, char *argv[]);
 
+// Rcon protocol related functions
 rc_packet*	packet_build(int id, int cmd, char *s1);
 uint8_t		*packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string);
 void		packet_print(rc_packet *packet);
@@ -104,31 +108,29 @@ void		packet_print(rc_packet *packet);
 int		rcon_auth(int rsock, char *passwd);
 int		rcon_command(int rsock, char *command);
 
-int		get_line(char *buffer, int len);
-int		run_terminal_mode(int rsock);
-int		run_commands(int argc, char *argv[]);
 
 // =============================================
 //  GLOBAL VARIABLES
 // =============================================
-int raw_output = 0;
-int silent_mode = 0;
-int print_colors = 1;
-int connection_alive = 1;
-int rsock; /* rcon socket */
+static int raw_output = 0;
+static int silent_mode = 0;
+static int print_colors = 1;
+static int connection_alive = 1;
+static int rsock;
 
 #ifdef _WIN32
-  /* console coloring on windows */
+  // console coloring on windows
   HANDLE console_handle;
 #endif
 
-/* safety stuff (windows is still misbehaving) */
+// safety stuff (windows is still misbehaving)
 void exit_proc(void)
 {
-	if (rsock != -1) net_close(rsock);
+	if (rsock != -1)
+		net_close(rsock);
 }
 
-/* Check windows & linux behaviour !!! */
+// Check windows & linux behaviour !!!
 void sighandler(/*int sig*/)
 {
 	connection_alive = 0;
@@ -143,12 +145,14 @@ int main(int argc, char *argv[])
 	int terminal_mode = 0;
 
 	char *host = NULL;
-	char *pass = "";
+	char *pass = NULL;	// this should be null by default!
 	char *port = "25575";
 
-	if(argc < 2) usage();
+	if(argc < 2)
+		usage();
 
-	opterr = 1; /* default error handler enabled */
+	// default getopt error handler enabled
+	opterr = 1;
 
 	while ((opt = getopt(argc, argv, "rtcshH:p:P:i")) != -1)
 	{
@@ -184,15 +188,19 @@ int main(int argc, char *argv[])
 
 	if (host == NULL)
 	{
-		fputs("Host not defined. Check -H flag.\n\n", stdout);
-		usage();
+		fputs("Host not defined (-H flag). Try 'mcrcon -h' for more information.\n\n", stdout);
+		return 0;
+	}
+
+	if (pass == NULL)
+	{
+		fputs("Password not defined (-p flag). Try 'mcrcon -h' for more information.\n\n", stdout);
+		return 0;
 	}
 
 	if(optind == argc && terminal_mode == 0)
-	{
-		fputs("No commands specified.\n\n", stdout);
-		usage();
-	}
+		terminal_mode = 1;
+
 
 	/* safety features to prevent "IO: Connection reset" bug on the server side */
 	atexit(&exit_proc);
@@ -233,23 +241,23 @@ int main(int argc, char *argv[])
 void usage(void)
 {
 	fputs(
-		"Usage: "IN_NAME" [OPTIONS]... [COMMANDS]...\n"
-		"Sends rcon commands to minecraft server.\n\n"
+		"Usage: "IN_NAME" [OPTIONS]... [COMMANDS]...\n\n"
+		"Sends rcon commands to Minecraft server.\n\n"
 		"Option:\n"
 		"  -h\t\tPrint usage.\n"
-		"  -s\t\tSilent mode. Do not print data received from rcon.\n"
+		"  -H\t\tServer address.\n"
+		"  -P\t\tPort. Default is 25575.\n"
+		"  -p\t\tRcon password.\"\".\n"
 		"  -t\t\tTerminal mode. Acts as interactive terminal.\n"
-		"  -p\t\tRcon password. Default: \"\".\n"
-		"  -H\t\tHost address or ip.\n"
-		"  -P\t\tPort. Default: 25575.\n"
+		"  -s\t\tSilent mode. Do not print data received from rcon.\n"
 		"  -c\t\tDisable colors.\n"
 		"  -r\t\tOutput raw packets.\n\t\tGood for debugging and custom handling of the output.\n"
 		,stdout
 	);
 
 	puts("\nCommands must be separated with spaces.\n");
-	puts("Example:\n  "IN_NAME" -c -H 192.168.1.42 -P 25575 -p password cmd1 \"cmd2 arg1 arg2\"\n");
-	puts("minecraft rcon ("IN_NAME") "VERSION".\nReport bugs to tiiffi_at_gmail_dot_com.\n");
+	puts("Example:\n  "IN_NAME" -c -H my.minecraft.server -P 25575 -p password cmd1 \"cmd2 arg1 arg2\"\n");
+	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or http://github.com/tiiffi/mcrcon/issues/\n");
 
 	#ifdef _WIN32
 	  puts("Press enter to exit.");
@@ -631,7 +639,7 @@ struct rcon_packet packet_build_new(int32_t id, int32_t cmd, char *string)
 		string_length = MAX_STRING_SIZE;
 		fprintf(stderr,
 			"Warning: command string is too long. Truncating to "
-			"%u characters.\n", MAX_STRING_SIZE
+			"%u characters.\n", (unsigned) MAX_STRING_SIZE
 		);
 	}
 
