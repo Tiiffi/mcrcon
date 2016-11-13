@@ -14,7 +14,7 @@ else
 endif
 
 CC = gcc
-CFLAGS = -std=gnu11 -Wall -Wextra -Wpedantic -O2
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
 
 all:
 	$(CROSS_COMPILE)$(CC) $(CFLAGS) -o $(EXENAME) mcrcon.c $(LINKER)
