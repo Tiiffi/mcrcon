@@ -40,7 +40,7 @@ Example:
 ---
 
 ####Enable rcon on server
-Remember to enable rcon by changing or adding following lines in ```server.properties``` file.
+Remember to enable rcon by adding following lines to ```server.properties``` file.
 ```
 enable-rcon=true
 rcon.port=25575
