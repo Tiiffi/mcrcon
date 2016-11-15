@@ -221,13 +221,12 @@ int main(int argc, char *argv[])
 		else
 			ret = run_commands(argc, argv);
 	}
-	else /* auth failed */
+	else // auth failed
 	{
 		ret = -1;
 		fprintf(stdout, "Authentication failed!\n");
 	}
 
-	/* cleanup */
 	net_close(rsock);
 	rsock = -1;
 
@@ -607,9 +606,9 @@ uint8_t *packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string
 }
 
 /* rcon packet structure */
-#define MAX_PACKET_SIZE (size_t) 1460 // including size member
-#define MIN_PACKET_SIZE (size_t) 10
-#define MAX_STRING_SIZE (size_t) (MAX_PACKET_SIZE - 2 - 3 * sizeof(int32_t))
+#define MAX_PACKET_SIZE  (size_t) 1460 // including size member
+#define MIN_PACKET_SIZE  (size_t) 10
+#define MAX_STRING_SIZE  (size_t) (MAX_PACKET_SIZE - 2 - 3 * sizeof(int32_t))
 #define SIZEOF_PACKET(x) (size_t) (x.size + sizeof(int32_t))
 
 struct rcon_packet
@@ -743,7 +742,7 @@ int run_terminal_mode(int rsock)
 	return ret;
 }
 
-/* gets line from stdin and deals with rubbish left in input buffer */
+// gets line from stdin and deals with rubbish left in the input buffer
 int get_line(char *buffer, int bsize)
 {
 	int ch, len;
@@ -754,12 +753,12 @@ int get_line(char *buffer, int bsize)
 	if (buffer[0] == 0)
 		connection_alive = 0;
 
-	/* remove unwanted characters from the buffer */
+	// remove unwanted characters from the buffer
 	buffer[strcspn(buffer, "\r\n")] = '\0';
 
 	len = strlen(buffer);
 
-	/* clean input buffer if needed */
+	// clean input buffer if needed 
 	if (len == bsize - 1)
 		while ((ch = getchar()) != '\n' && ch != EOF);
 
