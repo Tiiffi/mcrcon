@@ -12,7 +12,7 @@ You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/rel
 ---
 
 ####Usage:
-Usage: mcrcon [OPTIONS]... [COMMANDS]...
+mcrcon [OPTIONS]... [COMMANDS]...
 
 Sends rcon commands to Minecraft server.
 
@@ -29,7 +29,7 @@ Option:
   -v            Output version information
 ```
 
-Commands with arguments must enclosed in quotes.
+Commands with arguments must be enclosed in quotes.
 
 Example:
   ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
