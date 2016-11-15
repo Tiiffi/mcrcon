@@ -1,4 +1,4 @@
-####Installing:
+###Installing:
 
 from sources:
 ```
@@ -7,6 +7,7 @@ cd mcrcon/
 make
 sudo make install
 ```
+Check **INSTALL** for more details.
 
 You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/releases/latest
 
@@ -14,7 +15,7 @@ Binaries are provided for Linux and Windows.
 
 ---
 
-####Usage:
+###Usage:
 mcrcon [OPTIONS]... [COMMANDS]...
 
 Sends rcon commands to Minecraft server.
@@ -39,7 +40,7 @@ Example:
 
 ---
 
-####Enable rcon on server
+###Enable rcon on server
 Remember to enable rcon by adding following lines to ```server.properties``` file.
 ```
 enable-rcon=true
