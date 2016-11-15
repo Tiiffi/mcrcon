@@ -10,7 +10,8 @@ sudo make install
 
 You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/releases/latest
 
-Binaries are provided for Linux 32/64bit and Windows (only 32bit).
+Binaries are provided for Linux and Windows.
+
 ---
 
 ####Usage:
