@@ -1,3 +1,16 @@
+####Installing:
+
+from sources:
+
+1. git clone https://github.com/Tiiffi/mcrcon.git
+2. cd mcrcon/
+3. make
+4. sudo make install
+
+You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/releases/latest
+
+---
+
 ####Usage:
 Usage: mcrcon [OPTIONS]... [COMMANDS]...
 
@@ -21,7 +34,9 @@ Commands with arguments must enclosed in quotes.
 Example:
   ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
 
-#####Enable rcon on server
+---
+
+####Enable rcon on server
 Remember to enable rcon by changing or adding following lines in ```server.properties``` file.
 ```
 enable-rcon=true
