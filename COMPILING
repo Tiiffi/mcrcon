@@ -1,0 +1,11 @@
+####Compiling:
+
+Compile with GCC or CLANG:
+```cc -std=gnu11 -Wpedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c```
+
+or just run **make**.
+
+On windows, remember to link with winsockets.
+Add ```-lws2_32``` to compiler command line on Mingw GCC.
+
+---
