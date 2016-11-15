@@ -1,14 +1,16 @@
 ####Installing:
 
 from sources:
-
-1. git clone https://github.com/Tiiffi/mcrcon.git
-2. cd mcrcon/
-3. make
-4. sudo make install
+```
+git clone https://github.com/Tiiffi/mcrcon.git
+cd mcrcon/
+make
+sudo make install
+```
 
 You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/releases/latest
 
+Binaries are provided for Linux 32/64bit and Windows (only 32bit).
 ---
 
 ####Usage:
