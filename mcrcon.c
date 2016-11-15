@@ -60,7 +60,7 @@
 
 #define VERSION "0.0.6"
 #define IN_NAME "mcrcon"
-#define VER_STR IN_NAME" "VERSION
+#define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
 // rcon packet structure
 typedef struct _rc_packet {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 	int terminal_mode = 0;
 
 	char *host = NULL;
-	char *pass = NULL;	// this should be null by default!
+	char *pass = NULL;
 	char *port = "25575";
 
 	if(argc < 2)
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 	// default getopt error handler enabled
 	opterr = 1;
 
-	while ((opt = getopt(argc, argv, "rtcshH:p:P:i")) != -1)
+	while ((opt = getopt(argc, argv, "vrtcshH:p:P:i")) != -1)
 	{
 		switch (opt)
 		{
@@ -170,17 +170,17 @@ int main(int argc, char *argv[])
 			case 'I':
 			case 'i': terminal_mode = 1;	break;
 			case 'r': raw_output = 1;	break;
+			case 'v':
+				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
+				exit(0);
+			break;
 			case 'h':
-			case '?':
+			case '?': usage();		break;
 		/*
 		if(optopt == 'P' || optopt == 'H' || optopt == 'p')
 		    fprintf (stderr, "Option -%c requires an argument.\n\n", optopt);
-		*/
-
-		/* else fprintf (stderr, "Unknown option -%c\n\n", optopt); */
-
-			usage();
-			break;
+		
+		else fprintf (stderr, "Unknown option -%c\n\n", optopt); */
 
 			default: exit(-1);
 		}
@@ -188,13 +188,13 @@ int main(int argc, char *argv[])
 
 	if (host == NULL)
 	{
-		fputs("Host not defined (-H flag). Try 'mcrcon -h' for more information.\n\n", stdout);
+		fputs("Host not defined (-H flag). Try 'mcrcon -h' or 'man mcrcon' for more information.\n\n", stdout);
 		return 0;
 	}
 
 	if (pass == NULL)
 	{
-		fputs("Password not defined (-p flag). Try 'mcrcon -h' for more information.\n\n", stdout);
+		fputs("Password not defined (-p flag). Try 'mcrcon -h' 'man mcrcon' for more information.\n\n", stdout);
 		return 0;
 	}
 
@@ -244,20 +244,21 @@ void usage(void)
 		"Usage: "IN_NAME" [OPTIONS]... [COMMANDS]...\n\n"
 		"Sends rcon commands to Minecraft server.\n\n"
 		"Option:\n"
-		"  -h\t\tPrint usage.\n"
-		"  -H\t\tServer address.\n"
-		"  -P\t\tPort. Default is 25575.\n"
-		"  -p\t\tRcon password.\"\".\n"
-		"  -t\t\tTerminal mode. Acts as interactive terminal.\n"
-		"  -s\t\tSilent mode. Do not print data received from rcon.\n"
-		"  -c\t\tDisable colors.\n"
-		"  -r\t\tOutput raw packets.\n\t\tGood for debugging and custom handling of the output.\n"
+		"  -h\t\tPrint usage\n"
+		"  -H\t\tServer address\n"
+		"  -P\t\tPort (default is 25575)\n"
+		"  -p\t\tRcon password\n"
+		"  -t\t\tInteractive terminal mode\n"
+		"  -s\t\tSilent mode (do not print received packets)\n"
+		"  -c\t\tDisable colors\n"
+		"  -r\t\tOutput raw packets (debugging and custom handling)\n"
+		"  -v\t\tOutput version information\n"
 		,stdout
 	);
 
-	puts("\nCommands must be separated with spaces.\n");
-	puts("Example:\n  "IN_NAME" -c -H my.minecraft.server -P 25575 -p password cmd1 \"cmd2 arg1 arg2\"\n");
-	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or http://github.com/tiiffi/mcrcon/issues/\n");
+	puts("\nCommands with arguments must enclosed in quotes.\n");
+	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
+	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or https://github.com/Tiiffi/mcrcon/issues/\n");
 
 	#ifdef _WIN32
 	  puts("Press enter to exit.");
