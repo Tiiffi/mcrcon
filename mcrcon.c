@@ -252,7 +252,7 @@ void usage(void)
 		,stdout
 	);
 
-	puts("\nCommands with arguments must enclosed in quotes.\n");
+	puts("\nCommands with arguments must be enclosed in quotes.\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
 	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or https://github.com/Tiiffi/mcrcon/issues/\n");
 
