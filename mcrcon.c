@@ -31,7 +31,8 @@
 #include <unistd.h>
 
 #ifdef _WIN32
-    /* for name resolving on windows */
+    // for name resolving on windows
+    // enable this if you get compiler whine about getaddrinfo on windows
     //#define _WIN32_WINNT 0x0501
 
     #include <ws2tcpip.h>
@@ -45,9 +46,9 @@
     #include <netdb.h>
 #endif
 
-/* absolute value macro
-#define absolute(x) (x < 0) ? (0 - x) : x
-*/
+#define VERSION "0.0.6"
+#define IN_NAME "mcrcon"
+#define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
 #define RCON_EXEC_COMMAND       2
 #define RCON_AUTHENTICATE       3
@@ -57,10 +58,6 @@
 
 /* Safe value I think. This should me made dynamic for more stable performance! */
 #define DATA_BUFFSIZE 10240
-
-#define VERSION "0.0.6"
-#define IN_NAME "mcrcon"
-#define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
 // rcon packet structure
 typedef struct _rc_packet {
@@ -92,7 +89,6 @@ int		net_clean_incoming(int sd, int size);
 
 // Misc stuff
 void		usage(void);
-void		error(char *errstring);
 #ifndef _WIN32
 void		print_color(int color);
 #endif
@@ -135,7 +131,7 @@ void sighandler(/*int sig*/)
 {
 	connection_alive = 0;
 	#ifndef _WIN32
-	  exit(-1);
+	    exit(-1);
 	#endif
 }
 
@@ -176,11 +172,11 @@ int main(int argc, char *argv[])
 			break;
 			case 'h':
 			case '?': usage();		break;
-		/*
-		if(optopt == 'P' || optopt == 'H' || optopt == 'p')
-		    fprintf (stderr, "Option -%c requires an argument.\n\n", optopt);
-		
-		else fprintf (stderr, "Unknown option -%c\n\n", optopt); */
+			/*
+			  if(optopt == 'P' || optopt == 'H' || optopt == 'p')
+		    	  fprintf (stderr, "Option -%c requires an argument.\n\n", optopt);
+			  else fprintf (stderr, "Unknown option -%c\n\n", optopt);
+			*/
 
 			default: exit(-1);
 		}
@@ -202,25 +198,25 @@ int main(int argc, char *argv[])
 		terminal_mode = 1;
 
 
-	/* safety features to prevent "IO: Connection reset" bug on the server side */
+	// safety features to prevent "IO: Connection reset" bug on the server side
 	atexit(&exit_proc);
 	signal(SIGABRT, &sighandler);
 	signal(SIGTERM, &sighandler);
 	signal(SIGINT, &sighandler);
 
 	#ifdef _WIN32
-	net_init_WSA();
-	console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	if(console_handle == INVALID_HANDLE_VALUE) console_handle = NULL;
+	    net_init_WSA();
+	    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	    if (console_handle == INVALID_HANDLE_VALUE) console_handle = NULL;
 	#endif
 
-	/* open socket */
+	// open socket
 	rsock = net_connect(host, port);
 
-	/* auth & commands */
-	if(rcon_auth(rsock, pass))
+	// auth & commands
+	if (rcon_auth(rsock, pass))
 	{
-		if(terminal_mode)
+		if (terminal_mode)
 			ret = run_terminal_mode(rsock);
 		else
 			ret = run_commands(argc, argv);
@@ -261,17 +257,11 @@ void usage(void)
 	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or https://github.com/Tiiffi/mcrcon/issues/\n");
 
 	#ifdef _WIN32
-	  puts("Press enter to exit.");
-	  getchar();
+	    puts("Press enter to exit.");
+	    getchar();
 	#endif
 
 	exit(0);
-}
-
-void error(char *errstring)
-{
-	fputs(errstring, stderr);
-	exit(-1);
 }
 
 #ifdef _WIN32
@@ -363,8 +353,6 @@ int net_connect(const char *host, const char *port)
 	}
 
 	freeaddrinfo(server_info);
-
-	fprintf(stdout, "Connected to %s:%s\n", host, port);
 
 	return sd;
 }
@@ -532,24 +520,25 @@ void packet_print(rc_packet *packet)
 	int def_color = 0;
 
 	#ifdef _WIN32
-	  CONSOLE_SCREEN_BUFFER_INFO console_info;
-	  if(GetConsoleScreenBufferInfo(console_handle, &console_info) != 0)
-	  def_color = console_info.wAttributes + 0x30;
-	else def_color = 0x37;
+	    CONSOLE_SCREEN_BUFFER_INFO console_info;
+	    if(GetConsoleScreenBufferInfo(console_handle, &console_info) != 0)
+	    def_color = console_info.wAttributes + 0x30;
+	    else def_color = 0x37;
 	#endif
 
 	/* colors enabled so try to handle the bukkit colors for terminal */
-	if(print_colors == 1) {
+	if (print_colors == 1) {
 
-	for(i = 0; (unsigned char) packet->data[i] != 0; ++i)
+	for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 	{
-		if((unsigned char) packet->data[i] == 0xa7)
+		if ((unsigned char) packet->data[i] == 0xa7)
 		{
 			++i;
 			print_color(packet->data[i]);
 			continue;
 		}
-		if(packet->data[i] == 0x0A) print_color(def_color);
+		if (packet->data[i] == 0x0A) print_color(def_color);
+		
 		putchar(packet->data[i]);
 	}
 	print_color(def_color); /* cancel coloring */
@@ -558,19 +547,20 @@ void packet_print(rc_packet *packet)
 	/* strip colors */
 	else
 	{
-		for(i = 0; (unsigned char) packet->data[i] != 0; ++i)
+		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
-			if((unsigned char) packet->data[i] == 0xa7)
+			if ((unsigned char) packet->data[i] == 0xa7)
 			{
 				++i;
 				continue;
 			}
+			
 			putchar(packet->data[i]);
 		}
 	}
 
 	/* print newline if string has no newline */
-	if(packet->data[i-1] != 10 && packet->data[i-1] != 13)
+	if (packet->data[i-1] != 10 && packet->data[i-1] != 13)
 		putchar('\n');
 }
 
@@ -580,7 +570,7 @@ rc_packet *packet_build(int id, int cmd, char *s1)
 
 	/* size + id + cmd + s1 + s2 NULL terminator */
 	int s1_len = strlen(s1);
-	if(s1_len > DATA_BUFFSIZE)
+	if (s1_len > DATA_BUFFSIZE)
 	{
 		fprintf(stderr, "Warning: Command string too long (%d). Maximum allowed: %d.\n", s1_len, DATA_BUFFSIZE);
 		return NULL;
@@ -659,13 +649,16 @@ int rcon_auth(int rsock, char *passwd)
 	int ret;
 
 	rc_packet *packet = packet_build(RCON_PID, RCON_AUTHENTICATE, passwd);
-	if(packet == NULL) return 0;
+	if (packet == NULL)
+		return 0;
 
 	ret = net_send_packet(rsock, packet);
-	if(!ret) return 0; /* send failed */
+	if (!ret)
+		return 0; /* send failed */
 
 	packet = net_recv_packet(rsock);
-	if(packet == NULL) return 0;
+	if (packet == NULL)
+		return 0;
 
 	/* return 1 if authentication OK */
 	return packet->id == -1 ? 0 : 1;
@@ -692,11 +685,13 @@ int rcon_command(int rsock, char *command)
 
 	rc_packet *packet;
 	packet = net_recv_packet(rsock);
-	if(packet == NULL) return 0;
+	if (packet == NULL)
+		return 0;
 
-	if(packet->id != RCON_PID) return 0; /* wrong packet id */
+	if (packet->id != RCON_PID)
+		return 0; /* wrong packet id */
 
-	if(!silent_mode)
+	if (!silent_mode)
 	{
 	/*
 	if(packet->size == 10) {
@@ -704,7 +699,7 @@ int rcon_command(int rsock, char *command)
 	}
 	else
 	*/
-		if(packet->size > 10)
+		if (packet->size > 10)
 			packet_print(packet);
 	}
 
@@ -716,7 +711,7 @@ int run_commands(int argc, char *argv[])
 {
 	int i, ok = 1, ret = 0;
 
-	for(i = optind; i < argc && ok; i++)
+	for (i = optind; i < argc && ok; i++)
 	{
 		ok = rcon_command(rsock, argv[i]);
 		ret += ok;
@@ -733,12 +728,14 @@ int run_terminal_mode(int rsock)
 
 	puts("Logged in. Type \"Q\" to quit!");
 
-	while(connection_alive)
+	while (connection_alive)
 	{
 		int len = get_line(command, DATA_BUFFSIZE);
-		if(command[0] == 'Q' && command[1] == 0) break;
+		if(command[0] == 'Q' && command[1] == 0)
+			break;
 
-		if(len > 0 && connection_alive) ret += rcon_command(rsock, command);
+		if(len > 0 && connection_alive)
+			ret += rcon_command(rsock, command);
 
 		command[0] = len = 0;
 	}
@@ -751,10 +748,11 @@ int get_line(char *buffer, int bsize)
 {
 	int ch, len;
 
-	fputs("> ", stdout);
-	fgets(buffer, bsize, stdin);
+	fputs("/", stdout);
+	(void) fgets(buffer, bsize, stdin);
 
-	if(buffer[0] == 0) connection_alive = 0;
+	if (buffer[0] == 0)
+		connection_alive = 0;
 
 	/* remove unwanted characters from the buffer */
 	buffer[strcspn(buffer, "\r\n")] = '\0';
@@ -762,7 +760,7 @@ int get_line(char *buffer, int bsize)
 	len = strlen(buffer);
 
 	/* clean input buffer if needed */
-	if(len == bsize - 1)
+	if (len == bsize - 1)
 		while ((ch = getchar()) != '\n' && ch != EOF);
 
 	return len;
