@@ -56,7 +56,7 @@
 #define RCON_AUTH_RESPONSE      2
 #define RCON_PID                0xBADC0DE
 
-/* Safe value I think. This should me made dynamic for more stable performance! */
+// a bit too big perhaps?
 #define DATA_BUFFSIZE 10240
 
 // rcon packet structure
@@ -68,9 +68,9 @@ typedef struct _rc_packet {
     // ignoring string2 atm.
 } rc_packet;
 
-/* =================================== */
-/*  FUNCTION DEFINITIONS               */
-/* =================================== */
+// ===================================
+//  FUNCTION DEFINITIONS              
+// ===================================
 
 // endianness related functions
 bool    is_bigendian(void);
@@ -281,7 +281,7 @@ void net_init_WSA(void)
 }
 #endif
 
-/* socket close and cleanup */
+// socket close and cleanup
 void net_close(int sd)
 {
 #ifdef _WIN32
@@ -292,9 +292,9 @@ void net_close(int sd)
 #endif
 }
 
-/* Opens and connects socket */
-/* http://man7.org/linux/man-pages/man3/getaddrinfo.3.html */
-/* https://bugs.chromium.org/p/chromium/issues/detail?id=44489 */
+// Opens and connects socket
+// http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
+// https://bugs.chromium.org/p/chromium/issues/detail?id=44489
 int net_connect(const char *host, const char *port)
 {
 	int sd;
@@ -310,7 +310,6 @@ int net_connect(const char *host, const char *port)
 	  net_init_WSA();
 	#endif
 
-	// Get host address info
 	int ret = getaddrinfo(host, port, &hints, &server_info);
 	if (ret != 0)
 	{
@@ -377,8 +376,8 @@ int net_send(int sd, const uint8_t *buff, size_t size)
 int net_send_packet(int sd, rc_packet *packet)
 {
 	int len;
-	int total = 0;	/* how many bytes we've sent */
-	int bytesleft;	/* how many we have left to send */
+	int total = 0;	// bytes we've sent
+	int bytesleft;	// bytes left to send 
 	int ret = -1;
 
 	bytesleft = len = packet->size + sizeof(int);
@@ -391,7 +390,6 @@ int net_send_packet(int sd, rc_packet *packet)
 		bytesleft -= ret;
 	}
 
-	/* return -1 on failure, 0 on success */
 	return ret == -1 ? -1 : 1;
 }
 
@@ -400,7 +398,7 @@ rc_packet *net_recv_packet(int sd)
 	int psize;
 	static rc_packet packet = {0, 0, 0, { 0x00 }};
 
-	/* packet.size = packet.id = packet.cmd = 0; */
+	// packet.size = packet.id = packet.cmd = 0;
 
 	int ret = recv(sd, (char *) &psize, sizeof(int), 0);
 
@@ -465,7 +463,7 @@ int net_clean_incoming(int sd, int size)
 
 void print_color(int color)
 {
-	/* sh compatible color array */
+	// sh compatible color array
 	#ifndef _WIN32
 	char *colors[] =
 	{
@@ -506,12 +504,12 @@ void print_color(int color)
 	}
 }
 
-/* this hacky mess might use some optimizing */
+// this hacky mess might use some optimizing
 void packet_print(rc_packet *packet)
 {
 	if (raw_output == 1)
 	{
-		for(int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
+		for (int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
 		return;
 	}
 
@@ -519,35 +517,43 @@ void packet_print(rc_packet *packet)
 	int def_color = 0;
 
 	#ifdef _WIN32
-	    CONSOLE_SCREEN_BUFFER_INFO console_info;
-	    if(GetConsoleScreenBufferInfo(console_handle, &console_info) != 0)
-	    def_color = console_info.wAttributes + 0x30;
-	    else def_color = 0x37;
+	CONSOLE_SCREEN_BUFFER_INFO console_info;
+
+	if (GetConsoleScreenBufferInfo(console_handle, &console_info) != 0)
+		def_color = console_info.wAttributes + 0x30;
+	else
+		def_color = 0x37;
 	#endif
 
-	/* colors enabled so try to handle the bukkit colors for terminal */
-	if (print_colors == 1) {
-
-	for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
+	// colors enabled so try to handle the bukkit colors for terminal
+	if (print_colors == 1)
 	{
-		if ((unsigned char) packet->data[i] == 0xa7)
+	
+		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
-			++i;
-			print_color(packet->data[i]);
-			continue;
-		}
-		if (packet->data[i] == 0x0A) print_color(def_color);
-		
-		putchar(packet->data[i]);
-	}
-	print_color(def_color); /* cancel coloring */
+			if ((unsigned char) packet->data[i] == 0xc2)
+				continue;
 
+			if ((unsigned char) packet->data[i] == 0xa7)
+			{
+				++i;
+				print_color(packet->data[i]);
+				continue;
+			}
+			if (packet->data[i] == 0x0A) print_color(def_color);
+			
+			putchar(packet->data[i]);
+		}
+		print_color(def_color); // cancel coloring
 	}
-	/* strip colors */
+	// strip colors
 	else
 	{
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
+			if ((unsigned char) packet->data[i] == 0xc2)
+				continue;
+
 			if ((unsigned char) packet->data[i] == 0xa7)
 			{
 				++i;
@@ -558,16 +564,16 @@ void packet_print(rc_packet *packet)
 		}
 	}
 
-	/* print newline if string has no newline */
+	// print newline if string has no newline
 	if (packet->data[i-1] != 10 && packet->data[i-1] != 13)
 		putchar('\n');
 }
 
 rc_packet *packet_build(int id, int cmd, char *s1)
-{	/* hacky function */
+{
 	static rc_packet packet = {0, 0, 0, { 0x00 }};
 
-	/* size + id + cmd + s1 + s2 NULL terminator */
+	// size + id + cmd + s1 + s2 NULL terminator
 	int s1_len = strlen(s1);
 	if (s1_len > DATA_BUFFSIZE)
 	{
@@ -605,7 +611,7 @@ uint8_t *packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string
 	return packet;
 }
 
-/* rcon packet structure */
+// rcon packet structure
 #define MAX_PACKET_SIZE  (size_t) 1460 // including size member
 #define MIN_PACKET_SIZE  (size_t) 10
 #define MAX_STRING_SIZE  (size_t) (MAX_PACKET_SIZE - 2 - 3 * sizeof(int32_t))
@@ -653,13 +659,13 @@ int rcon_auth(int rsock, char *passwd)
 
 	ret = net_send_packet(rsock, packet);
 	if (!ret)
-		return 0; /* send failed */
+		return 0; // send failed
 
 	packet = net_recv_packet(rsock);
 	if (packet == NULL)
 		return 0;
 
-	/* return 1 if authentication OK */
+	// return 1 if authentication OK
 	return packet->id == -1 ? 0 : 1;
 }
 
@@ -688,7 +694,7 @@ int rcon_command(int rsock, char *command)
 		return 0;
 
 	if (packet->id != RCON_PID)
-		return 0; /* wrong packet id */
+		return 0;
 
 	if (!silent_mode)
 	{
@@ -702,7 +708,6 @@ int rcon_command(int rsock, char *command)
 			packet_print(packet);
 	}
 
-	/* return 1 if world was saved */
 	return 1;
 }
 
@@ -719,7 +724,7 @@ int run_commands(int argc, char *argv[])
 	return ret;
 }
 
-/* interactive terminal mode */
+// interactive terminal mode
 int run_terminal_mode(int rsock)
 {
 	int ret = 0;
