@@ -1,9 +1,9 @@
 ###Installing:
 
 from sources:
-```
+```sh
 git clone https://github.com/Tiiffi/mcrcon.git
-cd mcrcon/
+cd mcrcon
 make
 sudo make install
 ```
