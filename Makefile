@@ -15,9 +15,10 @@ endif
 
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+EXTRAFLAGS = -fstack-protector-strong
 
 all:
-	$(CROSS_COMPILE)$(CC) $(CFLAGS) -o $(EXENAME) mcrcon.c $(LINKER)
+	$(CROSS_COMPILE)$(CC) $(CFLAGS) $(EXTRAFLAGS) -o $(EXENAME) mcrcon.c $(LINKER)
 
 ifneq ($(OS), Windows_NT)
 install:
