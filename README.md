@@ -34,10 +34,11 @@ Option:
 ```
 
 Server address, port and password can be set using following environment variables:
-  MCRCON_HOST
-  MCRCON_PORT
-  MCRCON_PASS
-
+```
+MCRCON_HOST
+MCRCON_PORT
+MCRCON_PASS
+```
 Command-line options will override environment variables.
 Commands with arguments must be enclosed in quotes.
 
