@@ -131,13 +131,13 @@ void sighandler(/*int sig*/)
 {
 	connection_alive = 0;
 	#ifndef _WIN32
-	    exit(-1);
+	    exit(EXIT_SUCCESS);
 	#endif
 }
 
 int main(int argc, char *argv[])
 {
-	int opt, ret = 0;
+	int opt;
 	int terminal_mode = 0;
 
 	char *host = getenv("MCRCON_HOST");
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 			case 'r': raw_output = 1;	break;
 			case 'v':
 				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
-				exit(0);
+				exit(EXIT_SUCCESS);
 			break;
 			case 'h':
 			case '?': usage();		break;
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 			  else fprintf (stderr, "Unknown option -%c\n\n", optopt);
 			*/
 
-			default: exit(-1);
+			default: exit(EXIT_FAILURE);
 		}
 	}
 
@@ -220,20 +220,17 @@ int main(int argc, char *argv[])
 	if (rcon_auth(rsock, pass))
 	{
 		if (terminal_mode)
-			ret = run_terminal_mode(rsock);
+			run_terminal_mode(rsock);
 		else
-			ret = run_commands(argc, argv);
+			run_commands(argc, argv);
 	}
 	else // auth failed
-	{
-		ret = -1;
 		fprintf(stdout, "Authentication failed!\n");
-	}
 
 	net_close(rsock);
 	rsock = -1;
 
-	return ret;
+	return EXIT_SUCCESS;
 }
 
 void usage(void)
@@ -268,7 +265,7 @@ void usage(void)
 	    getchar();
 	#endif
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 #ifdef _WIN32
@@ -284,7 +281,7 @@ void net_init_WSA(void)
 	if (err != 0)
 	{
 		fprintf(stderr, "WSAStartup failed. Error: %d.\n", err);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 }
 #endif
