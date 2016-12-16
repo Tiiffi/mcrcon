@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii mcrcon.1
 .\"
-.TH MCRCON 1 "November 2016" "Version 0.0.6"
+.TH MCRCON 1 "December 2016" "Version 0.0.6"
 .SH NAME 
 mcrcon \- sends rcon commands to a Minecraft server
 .SH SYNOPSIS
@@ -34,6 +34,16 @@ Output raw packets (for debugging and custom handling)
 Output version information
 .PP
 Commands with arguments must be enclosed in quotes.
+.SH ENVIRONMENTAL VARIABLES
+Server address, port and password can be set using following environment variables:
+.PP
+\fBMCRCON_HOST
+.br
+\fBMCRCON_PORT
+.br
+\fBMCRCOM_PASS\fR
+.PP
+Note that command-line options will override environment variables.
 .SH EXAMPLES
 Make rcon connection in terminal mode using default port
 .RS

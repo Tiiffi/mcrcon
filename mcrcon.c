@@ -140,11 +140,14 @@ int main(int argc, char *argv[])
 	int opt, ret = 0;
 	int terminal_mode = 0;
 
-	char *host = NULL;
-	char *pass = NULL;
-	char *port = "25575";
+	char *host = getenv("MCRCON_HOST");
+	char *pass = getenv("MCRCON_PASS");
+	char *port = getenv("MCRCON_PORT");
+	
+	if (!port)
+		port = "25575";
 
-	if(argc < 2)
+	if(argc < 2 && host == NULL && pass == NULL)
 		usage();
 
 	// default getopt error handler enabled
@@ -247,11 +250,16 @@ void usage(void)
 		"  -s\t\tSilent mode (do not print received packets)\n"
 		"  -c\t\tDisable colors\n"
 		"  -r\t\tOutput raw packets (debugging and custom handling)\n"
-		"  -v\t\tOutput version information\n"
+		"  -v\t\tOutput version information\n\n"
+		"Server address, port and password can be set using following environment variables:\n"
+		"  MCRCON_HOST\n"
+		"  MCRCON_PORT\n"
+		"  MCRCON_PASS\n\n"
 		,stdout
 	);
 
-	puts("\nCommands with arguments must be enclosed in quotes.\n");
+	puts("Command-line options will override environment variables.");
+	puts("Rcon commands with arguments must be enclosed in quotes.\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
 	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or https://github.com/Tiiffi/mcrcon/issues/\n");
 
