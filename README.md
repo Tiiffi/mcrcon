@@ -32,6 +32,7 @@ Option:
   -r            Output raw packets (debugging and custom handling)
   -v            Output version information
 ```
+Commands with arguments must be enclosed in quotes.
 
 Server address, port and password can be set using following environment variables:
 ```
