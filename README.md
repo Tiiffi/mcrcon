@@ -9,9 +9,9 @@ sudo make install
 ```
 Check **INSTALL** for more details.
 
-You can also download precompiled binaries: https://github.com/Tiiffi/mcrcon/releases/latest
+You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/releases/latest
 
-Binaries are provided for Linux and Windows.
+<sub>*At the moment binaries are provided for Linux and Windows.</sub>
 
 ---
 
