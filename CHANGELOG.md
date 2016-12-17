@@ -1,4 +1,15 @@
 ####Version history:
+######0.6.0
+ - Version numbering changed to more sane system (0.0.5 -> 0.6.0)
+ - Fixed munged output
+ - Support for using environment variables to set some basic options
+ - Cleaned networking code
+ - Various code cleanups
+ - Changes and updates in usage text and error reporting
+ - Version option flag (-v) added
+ - Man page added 
+ - Proper makefile added
+
 ######0.0.5
   - IPv6 support!
      * Thanks to 'Tanja84dk' for addressing the real need of IPv6.

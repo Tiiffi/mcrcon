@@ -46,7 +46,7 @@
     #include <netdb.h>
 #endif
 
-#define VERSION "0.0.6"
+#define VERSION "0.6.0"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
@@ -757,7 +757,7 @@ int get_line(char *buffer, int bsize)
 {
 	int ch, len;
 
-	fputs("/", stdout);
+	fputs(">", stdout);
 	(void) fgets(buffer, bsize, stdin);
 
 	if (buffer[0] == 0)
