@@ -40,8 +40,7 @@ MCRCON_HOST
 MCRCON_PORT
 MCRCON_PASS
 ```
-Command-line options will override environment variables.
-Commands with arguments must be enclosed in quotes.
+Note that command-line options will override environment variables.
 
 Example:
   ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
