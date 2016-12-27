@@ -3,35 +3,47 @@
 # export CROSS_COMPILE=arm-none-linux-gnueabi-
 # make
 
+EXENAME = mcrcon
+PREFIX ?= /usr/local
+
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+EXTRAFLAGS = -fstack-protector-strong
+
+CC = gcc
+INSTALL = install
+LINKER =
+RM = rm -f
+
 ifeq ($(OS), Windows_NT)
 	LINKER = -lws2_32
 	EXENAME = mcrcon.exe
 	RM = cmd /C del /F
-else
-	LINKER =
-	EXENAME = mcrcon
-	RM = rm -f
 endif
 
-CC = gcc
-CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
-EXTRAFLAGS = -fstack-protector-strong
+ifeq ($(shell uname), Darwin)
+	INSTALL = ginstall
+	CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os
+endif
 
-all:
-	$(CROSS_COMPILE)$(CC) $(CFLAGS) $(EXTRAFLAGS) -o $(EXENAME) mcrcon.c $(LINKER)
+.PHONY: all
+all: $(EXENAME)
+
+$(EXENAME): mcrcon.c
+	$(CROSS_COMPILE)$(CC) $(CFLAGS) $(EXTRAFLAGS) -o $@ $< $(LINKER)
 
 ifneq ($(OS), Windows_NT)
+.PHONY: install
 install:
-	cp $(EXENAME) /usr/local/bin/$(EXENAME)
-	chmod 0755 /usr/local/bin/$(EXENAME)
-	cp mcrcon.1 /usr/local/share/man/man1/mcrcon.1
-	chmod 0644 /usr/local/share/man/man1/mcrcon.1
+	$(INSTALL) -vD $(EXENAME) $(PREFIX)/bin/$(EXENAME)
+	$(INSTALL) -vD -m 0644 mcrcon.1 $(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon installed. Run 'make uninstall' if you want to uninstall.\n"
+
+.PHONY: uninstall
 uninstall:
-	rm -f /usr/local/bin/$(EXENAME)
-	rm -f /usr/local/share/man/man1/mcrcon.1
+	rm -f $(PREFIX)/bin/$(EXENAME) $(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon uninstalled.\n"
 endif
 
+.PHONY: clean
 clean:
 	$(RM) $(EXENAME)
