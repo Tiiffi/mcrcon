@@ -1,10 +1,15 @@
 language: c
 sudo: false
 dist: trusty
+cache:
+  ccache: true
+compiler:
+- gcc
+- clang
 install: 'true'
 script:
 - make
-- make install
-- mcrcon -h
-- mcrcon -v
-- make uninstall
+- ./mcrcon -h
+- ./mcrcon -v
+- make install PREFIX="${HOME}"
+- make uninstall PREFIX="${HOME}"
