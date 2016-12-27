@@ -8,7 +8,7 @@ compiler:
 - clang
 env:
   global:
-  - EXTRAFLAGS=
+  - EXTRAFLAGS='-v'
   - PREFIX="${HOME}"
 install:
 - 'true'
