@@ -304,7 +304,7 @@ int net_connect(const char *host, const char *port)
 {
 	int sd;
 
-	struct addrinfo hints = {0};
+	struct addrinfo hints = {.ai_family = 0};
 	struct addrinfo *server_info, *p;
 
 	hints.ai_family = AF_UNSPEC;
