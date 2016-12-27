@@ -1,0 +1,10 @@
+language: c
+sudo: false
+dist: trusty
+install: 'true'
+script:
+- make
+- make install
+- mcrcon -h
+- mcrcon -v
+- make uninstall
