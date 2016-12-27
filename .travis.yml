@@ -6,10 +6,15 @@ cache:
 compiler:
 - gcc
 - clang
-install: 'true'
+env:
+  global:
+  - EXTRAFLAGS=
+  - PREFIX="${HOME}"
+install:
+- 'true'
 script:
 - make
 - ./mcrcon -h
 - ./mcrcon -v
-- make install PREFIX="${HOME}"
-- make uninstall PREFIX="${HOME}"
+- make install
+- make uninstall

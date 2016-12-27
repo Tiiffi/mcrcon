@@ -6,10 +6,10 @@
 EXENAME = mcrcon
 PREFIX ?= /usr/local
 
-CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
-EXTRAFLAGS = -fstack-protector-strong
+CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+EXTRAFLAGS ?= -fstack-protector-strong
 
-CC = gcc
+CC ?= gcc
 INSTALL = install
 LINKER =
 RM = rm -f
@@ -22,7 +22,7 @@ endif
 
 ifeq ($(shell uname), Darwin)
 	INSTALL = ginstall
-	CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os
+	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os
 endif
 
 .PHONY: all
