@@ -1,4 +1,4 @@
-# if you want to cross compile 
+# if you want to cross compile
 # export PATH=$PATH:/path/to/compiler/bin
 # export CROSS_COMPILE=arm-none-linux-gnueabi-
 # make
@@ -6,10 +6,8 @@
 EXENAME = mcrcon
 PREFIX ?= /usr/local
 
-CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
 EXTRAFLAGS ?= -fstack-protector-strong
 
-CC ?= gcc
 INSTALL = install
 LINKER =
 RM = rm -f
@@ -23,6 +21,8 @@ endif
 ifeq ($(shell uname), Darwin)
 	INSTALL = ginstall
 	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os
+else
+	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
 endif
 
 .PHONY: all
