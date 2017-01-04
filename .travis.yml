@@ -1,0 +1,20 @@
+language: c
+sudo: false
+dist: trusty
+cache:
+  ccache: true
+compiler:
+- gcc
+- clang
+env:
+  global:
+  - EXTRAFLAGS='-v'
+  - PREFIX="${HOME}"
+install:
+- 'true'
+script:
+- make
+- ./mcrcon -h
+- ./mcrcon -v
+- make install
+- make uninstall
