@@ -13,6 +13,7 @@ LINKER =
 RM = rm -f
 
 ifeq ($(OS), Windows_NT)
+    CC = gcc
 	LINKER = -lws2_32
 	EXENAME = mcrcon.exe
 	RM = cmd /C del /F
