@@ -64,3 +64,7 @@ rcon.password=your_rcon_pasword
 * IRC:            tiiffi @ quakenet
 * BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues/
 
+---
+
+<sub>Master:</sub> ![Master build](https://api.travis-ci.org/Tiiffi/mcrcon.svg?branch=master)
+<sub>Develop:</sub> ![Develop build](https://api.travis-ci.org/Tiiffi/mcrcon.svg?branch=develop)
