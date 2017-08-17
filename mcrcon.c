@@ -489,9 +489,13 @@ void print_color(int color)
 		"\033[1;35m", /* 13 LPURPLE  0x64 */
 		"\033[1;33m", /* 14 YELLOW   0x65 */
 		"\033[1;37m", /* 15 WHITE    0x66 */
+		"\033[4m"	, /*    UNDERLINE     */
+		"\033[1m"	,
+		"\033[41m",
+//		"\033[5m"
 	};
 
-	if(color == 0)
+	if(color == 0 || color == 'r')
 	{
 		fputs("\033[0m", stdout); /* CANCEL COLOR */
 	}
@@ -500,6 +504,10 @@ void print_color(int color)
 	{
 		if(color >= 0x61 && color <= 0x66) color -= 0x57;
 		else if(color >= 0x30 && color <= 0x39) color -= 0x30;
+		else if(color == 'n') color=16;
+		else if(color == 'l') color=17;
+		else if(color == 'm') color=18;
+//		else if(color == 'o') color=19;
 		else return;
 
 		#ifndef _WIN32
@@ -534,20 +542,26 @@ void packet_print(rc_packet *packet)
 	// colors enabled so try to handle the bukkit colors for terminal
 	if (print_colors == 1)
 	{
-	
+		unsigned char l=0; //deal with UTF-8
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
-			if ((unsigned char) packet->data[i] == 0xc2)
-				continue;
-
-			if ((unsigned char) packet->data[i] == 0xa7)
-			{
-				++i;
-				print_color(packet->data[i]);
-				continue;
-			}
-			if (packet->data[i] == 0x0A) print_color(def_color);
-			
+			if(l==0){
+				if ((unsigned char) packet->data[i] == 0xc2)
+					continue;
+				if ((unsigned char) packet->data[i] == 0xa7)
+				{
+					++i;
+					print_color(packet->data[i]);
+					continue;
+				}
+				if (packet->data[i] == 0x0A) print_color(def_color);
+				if((unsigned char) packet->data[i] < 0x80) l=0;
+				else if((unsigned char) packet->data[i] < 0xe0) l=1;
+				else if((unsigned char) packet->data[i] < 0xf0) l=2;
+				else if((unsigned char) packet->data[i] < 0xf8) l=3;
+				else if((unsigned char) packet->data[i] < 0xfc) l=4;
+				else if((unsigned char) packet->data[i] < 0xfe) l=5;
+			} else l--;
 			putchar(packet->data[i]);
 		}
 		print_color(def_color); // cancel coloring
