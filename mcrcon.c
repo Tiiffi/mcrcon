@@ -473,25 +473,26 @@ void print_color(int color)
 	#ifndef _WIN32
 	char *colors[] =
 	{
-		"\033[0;30m", /* 00 BLACK    0x30 */
-		"\033[0;34m", /* 01 BLUE     0x31 */
-		"\033[0;32m", /* 02 GREEN    0x32 */
-		"\033[0;36m", /* 03 CYAN     0x33 */
-		"\033[0;31m", /* 04 RED      0x34 */
-		"\033[0;35m", /* 05 PURPLE   0x35 */
-		"\033[0;33m", /* 06 GOLD     0x36 */
-		"\033[0;37m", /* 07 GREY     0x37 */
-		"\033[1;30m", /* 08 DGREY    0x38 */
-		"\033[1;34m", /* 09 LBLUE    0x39 */
-		"\033[1;32m", /* 10 LGREEN   0x61 */
-		"\033[1;36m", /* 11 LCYAN    0x62 */
-		"\033[1;31m", /* 12 LRED     0x63 */
-		"\033[1;35m", /* 13 LPURPLE  0x64 */
-		"\033[1;33m", /* 14 YELLOW   0x65 */
-		"\033[1;37m", /* 15 WHITE    0x66 */
+		"\033[0;30m",   /* 00 BLACK     0x30 */
+		"\033[0;34m",   /* 01 BLUE      0x31 */
+		"\033[0;32m",   /* 02 GREEN     0x32 */
+		"\033[0;36m",   /* 03 CYAN      0x33 */
+		"\033[0;31m",   /* 04 RED       0x34 */
+		"\033[0;35m",   /* 05 PURPLE    0x35 */
+		"\033[0;33m",   /* 06 GOLD      0x36 */
+		"\033[0;37m",   /* 07 GREY      0x37 */
+		"\033[0;1;30m", /* 08 DGREY     0x38 */
+		"\033[0;1;34m", /* 09 LBLUE     0x39 */
+		"\033[0;1;32m", /* 10 LGREEN    0x61 */
+		"\033[0:1;36m", /* 11 LCYAN     0x62 */
+		"\033[0;1;31m", /* 12 LRED      0x63 */
+		"\033[0;1;35m", /* 13 LPURPLE   0x64 */
+		"\033[0;1;33m", /* 14 YELLOW    0x65 */
+		"\033[0;1;37m", /* 15 WHITE     0x66 */
+		"\033[4m"       /* 16 UNDERLINE 0x6e */
 	};
 
-	if(color == 0)
+	if(color == 0 || color == 0x72) /* 0x72: 'r' */
 	{
 		fputs("\033[0m", stdout); /* CANCEL COLOR */
 	}
@@ -500,6 +501,7 @@ void print_color(int color)
 	{
 		if(color >= 0x61 && color <= 0x66) color -= 0x57;
 		else if(color >= 0x30 && color <= 0x39) color -= 0x30;
+		else if(color == 0x6e) color=16; /* 0x6e: 'n' */
 		else return;
 
 		#ifndef _WIN32
@@ -534,20 +536,13 @@ void packet_print(rc_packet *packet)
 	// colors enabled so try to handle the bukkit colors for terminal
 	if (print_colors == 1)
 	{
-	
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
-			if ((unsigned char) packet->data[i] == 0xc2)
-				continue;
-
-			if ((unsigned char) packet->data[i] == 0xa7)
-			{
-				++i;
-				print_color(packet->data[i]);
+			if (packet->data[i] == 0x0A) print_color(def_color);
+			else if((unsigned char) packet->data[i] == 0xc2 && (unsigned char) packet->data[i+1] == 0xa7){
+				print_color(packet->data[i+=2]);
 				continue;
 			}
-			if (packet->data[i] == 0x0A) print_color(def_color);
-			
 			putchar(packet->data[i]);
 		}
 		print_color(def_color); // cancel coloring
@@ -557,15 +552,10 @@ void packet_print(rc_packet *packet)
 	{
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
-			if ((unsigned char) packet->data[i] == 0xc2)
+			if ((unsigned char) packet->data[i] == 0xc2 && (unsigned char) packet->data[i+1] == 0xa7){
+				i+=2;
 				continue;
-
-			if ((unsigned char) packet->data[i] == 0xa7)
-			{
-				++i;
-				continue;
-			}
-			
+			}	
 			putchar(packet->data[i]);
 		}
 	}
