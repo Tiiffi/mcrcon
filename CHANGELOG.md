@@ -1,4 +1,8 @@
 ####Version history:
+######0.6.1
+ - Color coding fixed
+    * Thanks to Hagb @ Github
+
 ######0.6.0
  - Version numbering changed to more sane system (0.0.5 -> 0.6.0)
  - Fixed munged output
