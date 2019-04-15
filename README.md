@@ -1,4 +1,4 @@
-###Installing:
+### Installing:
 
 from sources:
 ```sh
@@ -15,7 +15,7 @@ You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/re
 
 ---
 
-###Usage:
+### Usage:
 mcrcon [OPTIONS]... [COMMANDS]...
 
 Sends rcon commands to Minecraft server.
@@ -47,7 +47,7 @@ Example:
 
 ---
 
-###Enable rcon on server
+### Enable rcon on server
 Remember to enable rcon by adding following lines to ```server.properties``` file.
 ```
 enable-rcon=true
@@ -57,7 +57,7 @@ rcon.password=your_rcon_pasword
 
 ---
 
-####Contact:
+#### Contact:
 
 * WWW:            https://github.com/Tiiffi/mcrcon/
 * MAIL:           tiiffi_at_gmail_dot_com
