@@ -1,4 +1,8 @@
 #### Version history:
+
+###### 0.6.2
+ - Set default address to localhost
+
 ###### 0.6.1
  - Color coding fixed
     * Thanks to Hagb @ Github

@@ -147,7 +147,10 @@ int main(int argc, char *argv[])
 	if (!port)
 		port = "25575";
 
-	if(argc < 2 && host == NULL && pass == NULL)
+	if (!host)
+		host = "localhost";
+
+	if(argc < 1 && pass == NULL)
 		usage();
 
 	// default getopt error handler enabled
@@ -183,12 +186,6 @@ int main(int argc, char *argv[])
 
 			default: exit(EXIT_FAILURE);
 		}
-	}
-
-	if (host == NULL)
-	{
-		fputs("Host not defined (-H flag). Try 'mcrcon -h' or 'man mcrcon' for more information.\n\n", stdout);
-		return 0;
 	}
 
 	if (pass == NULL)
@@ -240,7 +237,7 @@ void usage(void)
 		"Sends rcon commands to Minecraft server.\n\n"
 		"Option:\n"
 		"  -h\t\tPrint usage\n"
-		"  -H\t\tServer address\n"
+		"  -H\t\tServer address (default is localhost)\n"
 		"  -P\t\tPort (default is 25575)\n"
 		"  -p\t\tRcon password\n"
 		"  -t\t\tInteractive terminal mode\n"
