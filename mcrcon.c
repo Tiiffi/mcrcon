@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 
 	if (pass == NULL)
 	{
-		fputs("Password not defined (-p flag). Try 'mcrcon -h' 'man mcrcon' for more information.\n\n", stdout);
+		fputs("Password not defined (-p flag). Try 'mcrcon -h' or 'man mcrcon' for more information.\n\n", stdout);
 		return 0;
 	}
 
