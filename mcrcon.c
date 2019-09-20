@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, Tiiffi <tiiffi -> gmail_dot_com>
+ * Copyright (c) 2012-2019, Tiiffi <tiiffi -> gmail_dot_com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -32,7 +32,7 @@
 
 #ifdef _WIN32
     // for name resolving on windows
-    // enable this if you get compiler whine about getaddrinfo on windows
+    // enable this if you get compiler whine about getaddrinfo() on windows
     //#define _WIN32_WINNT 0x0501
 
     #include <ws2tcpip.h>
@@ -73,46 +73,46 @@ typedef struct _rc_packet {
 // ===================================
 
 // endianness related functions
-bool    is_bigendian(void);
-int32_t reverse_int32(int32_t n);
+bool        is_bigendian(void);
+int32_t     reverse_int32(int32_t n);
 
 // Network related functions
 #ifdef _WIN32
 void		net_init_WSA(void);
 #endif
 void		net_close(int sd);
-int		net_connect(const char *host, const char *port);
-int		net_send(int sd, const uint8_t *buffer, size_t size);
-int		net_send_packet(int sd, rc_packet *packet);
+int			net_connect(const char *host, const char *port);
+int			net_send(int sd, const uint8_t *buffer, size_t size);
+int			net_send_packet(int sd, rc_packet *packet);
 rc_packet*	net_recv_packet(int sd);
-int		net_clean_incoming(int sd, int size);
+int			net_clean_incoming(int sd, int size);
 
 // Misc stuff
-void		usage(void);
+void	    usage(void);
 #ifndef _WIN32
-void		print_color(int color);
+void	    print_color(int color);
 #endif
-int		get_line(char *buffer, int len);
-int		run_terminal_mode(int rsock);
-int		run_commands(int argc, char *argv[]);
+int		    get_line(char *buffer, int len);
+int		    run_terminal_mode(int sock);
+int		    run_commands(int argc, char *argv[]);
 
 // Rcon protocol related functions
 rc_packet*	packet_build(int id, int cmd, char *s1);
 uint8_t		*packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string);
 void		packet_print(rc_packet *packet);
 
-int		rcon_auth(int rsock, char *passwd);
-int		rcon_command(int rsock, char *command);
+int	        rcon_auth(int sock, char *passwd);
+int	        rcon_command(int sock, char *command);
 
 
 // =============================================
 //  GLOBAL VARIABLES
 // =============================================
-static int raw_output = 0;
-static int silent_mode = 0;
-static int print_colors = 1;
-static int connection_alive = 1;
-static int rsock;
+static int global_raw_output = 0;
+static int global_silent_mode = 0;
+static int global_print_colors = 1;
+static int global_connection_alive = 1;
+static int global_rsock;
 
 #ifdef _WIN32
   // console coloring on windows
@@ -122,14 +122,14 @@ static int rsock;
 // safety stuff (windows is still misbehaving)
 void exit_proc(void)
 {
-	if (rsock != -1)
-		net_close(rsock);
+	if (global_rsock != -1)
+		net_close(global_rsock);
 }
 
 // Check windows & linux behaviour !!!
 void sighandler(/*int sig*/)
 {
-	connection_alive = 0;
+	global_connection_alive = 0;
 	#ifndef _WIN32
 	    exit(EXIT_SUCCESS);
 	#endif
@@ -160,18 +160,18 @@ int main(int argc, char *argv[])
 	{
 		switch (opt)
 		{
-			case 'H': host = optarg;	break;
-			case 'P': port = optarg;	break;
-			case 'p': pass = optarg;	break;
+			case 'H': host = optarg;			break;
+			case 'P': port = optarg;			break;
+			case 'p': pass = optarg;			break;
 			case 'C':
-			case 'c': print_colors = 0;	break;
+			case 'c': global_print_colors = 0;	break;
 			case 'S':
-			case 's': silent_mode = 1;	break;
+			case 's': global_silent_mode = 1;	break;
 			case 'T':
 			case 't':
 			case 'I':
-			case 'i': terminal_mode = 1;	break;
-			case 'r': raw_output = 1;	break;
+			case 'i': terminal_mode = 1;		break;
+			case 'r': global_raw_output = 1;	break;
 			case 'v':
 				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
 				exit(EXIT_SUCCESS);
@@ -211,21 +211,21 @@ int main(int argc, char *argv[])
 	#endif
 
 	// open socket
-	rsock = net_connect(host, port);
+	global_rsock = net_connect(host, port);
 
 	// auth & commands
-	if (rcon_auth(rsock, pass))
+	if (rcon_auth(global_rsock, pass))
 	{
 		if (terminal_mode)
-			run_terminal_mode(rsock);
+			run_terminal_mode(global_rsock);
 		else
 			run_commands(argc, argv);
 	}
 	else // auth failed
 		fprintf(stdout, "Authentication failed!\n");
 
-	net_close(rsock);
-	rsock = -1;
+	net_close(global_rsock);
+	global_rsock = -1;
 
 	return EXIT_SUCCESS;
 }
@@ -408,14 +408,14 @@ rc_packet *net_recv_packet(int sd)
 	if (ret == 0)
 	{
 		fprintf(stderr, "Connection lost.\n");
-		connection_alive = 0;
+		global_connection_alive = 0;
 		return NULL;
 	}
 
 	if (ret != sizeof(int))
 	{
 		fprintf(stderr, "Error: recv() failed. Invalid packet size (%d).\n", ret);
-		connection_alive = 0;
+		global_connection_alive = 0;
 		return NULL;
 	}
 
@@ -435,7 +435,7 @@ rc_packet *net_recv_packet(int sd)
 	if (ret == 0)
 	{
 		fprintf(stderr, "Connection lost.\n");
-		connection_alive = 0;
+		global_connection_alive = 0;
 		return NULL;
 	}
 
@@ -458,7 +458,7 @@ int net_clean_incoming(int sd, int size)
 	if(ret == 0)
 	{
 		fprintf(stderr, "Connection lost.\n");
-		connection_alive = 0;
+		global_connection_alive = 0;
 	}
 
 	return ret;
@@ -512,7 +512,7 @@ void print_color(int color)
 // this hacky mess might use some optimizing
 void packet_print(rc_packet *packet)
 {
-	if (raw_output == 1)
+	if (global_raw_output == 1)
 	{
 		for (int i = 0; packet->data[i] != 0; ++i) putchar(packet->data[i]);
 		return;
@@ -531,7 +531,7 @@ void packet_print(rc_packet *packet)
 	#endif
 
 	// colors enabled so try to handle the bukkit colors for terminal
-	if (print_colors == 1)
+	if (global_print_colors == 1)
 	{
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
@@ -642,7 +642,7 @@ struct rcon_packet packet_build_new(int32_t id, int32_t cmd, char *string)
 	return packet;
 }
 
-int rcon_auth(int rsock, char *passwd)
+int rcon_auth(int sock, char *passwd)
 {
 	int ret;
 
@@ -650,11 +650,11 @@ int rcon_auth(int rsock, char *passwd)
 	if (packet == NULL)
 		return 0;
 
-	ret = net_send_packet(rsock, packet);
+	ret = net_send_packet(sock, packet);
 	if (!ret)
 		return 0; // send failed
 
-	packet = net_recv_packet(rsock);
+	packet = net_recv_packet(sock);
 	if (packet == NULL)
 		return 0;
 
@@ -662,7 +662,7 @@ int rcon_auth(int rsock, char *passwd)
 	return packet->id == -1 ? 0 : 1;
 }
 
-int rcon_command(int rsock, char *command)
+int rcon_command(int sock, char *command)
 {
 	int ret; (void) ret;
 
@@ -670,26 +670,26 @@ int rcon_command(int rsock, char *command)
 	uint8_t *p = packet_build_malloc(&size, RCON_PID, RCON_EXEC_COMMAND, command);
 	if (p == NULL)
 	{
-		connection_alive = 0;
+		global_connection_alive = 0;
 		return 0;
 	}
 
-	net_send(rsock, p, size);
+	net_send(sock, p, size);
 
 	free(p);
 
-	//ret = net_send_packet(rsock, packet);
+	//ret = net_send_packet(sock, packet);
 	//if(!ret) return 0; /* send failed */
 
 	rc_packet *packet;
-	packet = net_recv_packet(rsock);
+	packet = net_recv_packet(sock);
 	if (packet == NULL)
 		return 0;
 
 	if (packet->id != RCON_PID)
 		return 0;
 
-	if (!silent_mode)
+	if (!global_silent_mode)
 	{
 	/*
 	if(packet->size == 10) {
@@ -710,7 +710,7 @@ int run_commands(int argc, char *argv[])
 
 	for (i = optind; i < argc && ok; i++)
 	{
-		ok = rcon_command(rsock, argv[i]);
+		ok = rcon_command(global_rsock, argv[i]);
 		ret += ok;
 	}
 
@@ -718,21 +718,21 @@ int run_commands(int argc, char *argv[])
 }
 
 // interactive terminal mode
-int run_terminal_mode(int rsock)
+int run_terminal_mode(int sock)
 {
 	int ret = 0;
 	char command[DATA_BUFFSIZE] = {0x00};
 
 	puts("Logged in. Type \"Q\" to quit!");
 
-	while (connection_alive)
+	while (global_connection_alive)
 	{
 		int len = get_line(command, DATA_BUFFSIZE);
 		if(command[0] == 'Q' && command[1] == 0)
 			break;
 
-		if(len > 0 && connection_alive)
-			ret += rcon_command(rsock, command);
+		if(len > 0 && global_connection_alive)
+			ret += rcon_command(sock, command);
 
 		command[0] = len = 0;
 	}
@@ -749,7 +749,7 @@ int get_line(char *buffer, int bsize)
 	(void) fgets(buffer, bsize, stdin);
 
 	if (buffer[0] == 0)
-		connection_alive = 0;
+		global_connection_alive = 0;
 
 	// remove unwanted characters from the buffer
 	buffer[strcspn(buffer, "\r\n")] = '\0';
