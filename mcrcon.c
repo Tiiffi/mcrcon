@@ -746,10 +746,10 @@ int get_line(char *buffer, int bsize)
 	int ch, len;
 
 	fputs(">", stdout);
-	(void) fgets(buffer, bsize, stdin);
+	char *ret = fgets(buffer, bsize, stdin);
+    if (ret == NULL) exit(EXIT_FAILURE);
 
-	if (buffer[0] == 0)
-		global_connection_alive = 0;
+	if (buffer[0] == 0) global_connection_alive = 0;
 
 	// remove unwanted characters from the buffer
 	buffer[strcspn(buffer, "\r\n")] = '\0';
