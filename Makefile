@@ -6,14 +6,15 @@
 EXENAME = mcrcon
 PREFIX ?= /usr/local
 
-EXTRAFLAGS ?= -fstack-protector-strong
-
 INSTALL = install
 LINKER =
-RM = rm -f
+RM = rm -v -f
+
+CC = cc
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+EXTRAFLAGS ?= -fstack-protector-strong
 
 ifeq ($(OS), Windows_NT)
-    CC = gcc
 	LINKER = -lws2_32
 	EXENAME = mcrcon.exe
 	RM = cmd /C del /F
@@ -21,9 +22,7 @@ endif
 
 ifeq ($(shell uname), Darwin)
 	INSTALL = ginstall
-	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os
-else
-	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+	CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os
 endif
 
 .PHONY: all
@@ -41,7 +40,7 @@ install:
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(EXENAME) $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
+	$(RM) $(DESTDIR)$(PREFIX)/bin/$(EXENAME) $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon uninstalled.\n"
 endif
 
