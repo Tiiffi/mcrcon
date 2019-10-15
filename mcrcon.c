@@ -100,7 +100,6 @@ int		    run_commands(int argc, char *argv[]);
 rc_packet*	packet_build(int id, int cmd, char *s1);
 uint8_t		*packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string);
 void		packet_print(rc_packet *packet);
-
 int	        rcon_auth(int sock, char *passwd);
 int	        rcon_command(int sock, char *command);
 
@@ -213,21 +212,26 @@ int main(int argc, char *argv[])
 	// open socket
 	global_rsock = net_connect(host, port);
 
+	int exit_code = EXIT_SUCCESS;
+
 	// auth & commands
 	if (rcon_auth(global_rsock, pass))
 	{
 		if (terminal_mode)
 			run_terminal_mode(global_rsock);
 		else
-			run_commands(argc, argv);
+			exit_code = run_commands(argc, argv);
 	}
 	else // auth failed
+	{
 		fprintf(stdout, "Authentication failed!\n");
+		exit_code = EXIT_FAILURE;
+	}
 
 	net_close(global_rsock);
 	global_rsock = -1;
 
-	return EXIT_SUCCESS;
+	return exit_code;
 }
 
 void usage(void)
@@ -697,7 +701,7 @@ int rcon_command(int sock, char *command)
 	}
 	else
 	*/
-		if (packet->size > 10)
+	if (packet->size > 10)
 			packet_print(packet);
 	}
 
@@ -706,13 +710,21 @@ int rcon_command(int sock, char *command)
 
 int run_commands(int argc, char *argv[])
 {
-	int i, ok = 1, ret = 0;
+	int i, ok = 1, ret = EXIT_SUCCESS;
 
 	for (i = optind; i < argc && ok; i++)
 	{
 		ok = rcon_command(global_rsock, argv[i]);
-		ret += ok;
+		if (!ok) {
+			ret = EXIT_FAILURE;
+			break;
+		}
+		++ret;
 	}
+
+	// Check if amount of successfully sent commands
+	// matches amount of requested commands
+	if (ret == optind) ret = EXIT_SUCCESS;
 
 	return ret;
 }
