@@ -431,19 +431,18 @@ rc_packet *net_recv_packet(int sd)
 
 	packet.size = psize;
 
-	ret = recv(sd, (char *) &packet + sizeof(int), psize, 0);
-	if (ret == 0)
+	int received = 0;
+	while (received < psize)
 	{
-		fprintf(stderr, "Connection lost.\n");
-		connection_alive = 0;
-		return NULL;
-	}
+		ret = recv(sd, (char *) &packet + sizeof(int) + received, psize - received, 0);
+		if (ret == 0) /* connection closed before completing receving */
+		{
+			fprintf(stderr, "Connection lost.\n");
+			connection_alive = 0;
+			return NULL;
+		}
 
-	if(ret != psize)
-	{
-		fprintf(stderr, "Warning: recv() return value (%d) does not match expected packet size (%d).\n", ret, psize);
-		net_clean_incoming(sd, DATA_BUFFSIZE); /* Should be enough. Needs some checking */
-		return NULL;
+		received += ret;
 	}
 
 	return &packet;
