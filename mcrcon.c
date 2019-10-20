@@ -46,7 +46,7 @@
     #include <netdb.h>
 #endif
 
-#define VERSION "0.6.1"
+#define VERSION "0.6.2"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
