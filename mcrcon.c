@@ -615,8 +615,6 @@ int rcon_command(int sock, char *command)
 
 	net_send_packet(sock, packet);
 
-	free(packet);
-
 	packet = net_recv_packet(sock);
 	if (packet == NULL)
 		return 0;
