@@ -98,7 +98,6 @@ int		    run_commands(int argc, char *argv[]);
 
 // Rcon protocol related functions
 rc_packet*	packet_build(int id, int cmd, char *s1);
-uint8_t		*packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string);
 void		packet_print(rc_packet *packet);
 int	        rcon_auth(int sock, char *passwd);
 int	        rcon_command(int sock, char *command);
@@ -585,66 +584,6 @@ rc_packet *packet_build(int id, int cmd, char *s1)
 	return &packet;
 }
 
-// TODO(Tiiffi): String length limit?
-uint8_t *packet_build_malloc(size_t *size, int32_t id, int32_t cmd, char *string)
-{
-	size_t string_length = strlen(string);
-
-	*size = 3 * sizeof(int32_t) + string_length + 2;
-	uint8_t *packet = malloc(*size);
-	if (packet == NULL) return NULL;
-
-	int32_t *p = (int32_t *) packet;
-	p[0] = (int32_t) *size - sizeof(int32_t);
-	p[1] = id;
-	p[2] = cmd;
-
-	memcpy(&p[3], string, string_length);
-
-	packet[12 + string_length] = 0;
-	packet[13 + string_length] = 0;
-
-	return packet;
-}
-
-// rcon packet structure
-#define MAX_PACKET_SIZE  (size_t) 1460 // including size member
-#define MIN_PACKET_SIZE  (size_t) 10
-#define MAX_STRING_SIZE  (size_t) (MAX_PACKET_SIZE - 2 - 3 * sizeof(int32_t))
-#define SIZEOF_PACKET(x) (size_t) (x.size + sizeof(int32_t))
-
-struct rcon_packet
-{
-	int32_t size;
-	int32_t id;
-	int32_t cmd;
-	uint8_t data[MAX_STRING_SIZE];
-};
-
-struct rcon_packet packet_build_new(int32_t id, int32_t cmd, char *string)
-{
-	struct rcon_packet packet;
-	size_t string_length = strlen(string);
-
-	if (string_length > MAX_STRING_SIZE)
-	{
-		string_length = MAX_STRING_SIZE;
-		fprintf(stderr,
-			"Warning: command string is too long. Truncating to "
-			"%u characters.\n", (unsigned) MAX_STRING_SIZE
-		);
-	}
-
-	packet.size = 2 * sizeof(int32_t) + string_length + 2;
-	packet.id = id;
-	packet.cmd = cmd;
-	memcpy(packet.data, string, string_length);
-	packet.data[string_length] = 0;
-	packet.data[string_length + 1] = 0;
-
-	return packet;
-}
-
 int rcon_auth(int sock, char *passwd)
 {
 	int ret;
@@ -667,24 +606,17 @@ int rcon_auth(int sock, char *passwd)
 
 int rcon_command(int sock, char *command)
 {
-	int ret; (void) ret;
-
-	size_t size;
-	uint8_t *p = packet_build_malloc(&size, RCON_PID, RCON_EXEC_COMMAND, command);
-	if (p == NULL)
+	rc_packet *packet = packet_build(RCON_PID, RCON_EXEC_COMMAND, command);
+	if (packet == NULL)
 	{
 		global_connection_alive = 0;
 		return 0;
 	}
 
-	net_send(sock, p, size);
+	net_send_packet(sock, packet);
 
-	free(p);
+	free(packet);
 
-	//ret = net_send_packet(sock, packet);
-	//if(!ret) return 0; /* send failed */
-
-	rc_packet *packet;
 	packet = net_recv_packet(sock);
 	if (packet == NULL)
 		return 0;
