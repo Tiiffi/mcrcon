@@ -3,7 +3,7 @@
 .\"
 .TH MCRCON 1 "October 2019" "Version 0.6.2"
 .SH NAME 
-mcrcon \- sends rcon commands to a Minecraft server
+mcrcon \- send rcon commands to a Minecraft server
 .SH SYNOPSIS
 .B mcrcon [
 options
@@ -11,31 +11,32 @@ options
 commands
 .B ]
 .SH DESCRIPTION
-mcrcon is Minecraft rcon client / terminal with bukkit coloring support.
-It is well suited for remote administration and server maintenance scripts.
+mcrcon is Minecraft rcon client for remote administration and server maintenance scripts.
 .SH OPTIONS
-.IP -h
-Print usage
 .IP -H
-Server address (default is localhost)
+Server address (default: localhost)
 .IP -P
-Port (default is 25575)
+Port (default: 25575)
 .IP -p
 Rcon password
 .IP -t
-Interactive terminal mode
+Terminal mode
 .IP -s
-Silent mode (do not print received packets)
+Silent mode
 .IP -c
 Disable colors
 .IP -r
-Output raw packets (for debugging and custom handling)
+Output raw packets
+.IP -h
+Print usage
 .IP -v
 Output version information
 .PP
-Commands with arguments must be enclosed in quotes.
+Commands with spaces must be enclosed in quotes.
+.br
+mcrcon will start in terminal mode if no commands are given.
 .SH ENVIRONMENTAL VARIABLES
-Server address, port and password can be set using following environment variables:
+Server address, port and password can be set with following environment variables:
 .PP
 \fBMCRCON_HOST
 .br
@@ -55,7 +56,7 @@ Send "weather clear" command to server using custom port 1337
 \fBmcrcon\fR -H my.minecraft.server -P 1337 -p password "weather clear"
 .RE
 .PP
-Send three commands to server (say, save-all and stop)
+Send three commands to server ("say", "save-all" and "stop")
 .RS
 \fBmcrcon\fR -H my.minecraft.server -p password "say Server is restarting!" save-all stop
 .RE

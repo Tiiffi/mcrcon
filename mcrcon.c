@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 
 	if (pass == NULL)
 	{
-		fputs("Password not defined (-p flag). Try 'mcrcon -h' or 'man mcrcon' for more information.\n\n", stdout);
+		fputs("You must give password (-p password). Try 'mcrcon -h' or 'man mcrcon' for help.\n\n", stdout);
 		return 0;
 	}
 
@@ -236,27 +236,28 @@ int main(int argc, char *argv[])
 void usage(void)
 {
 	fputs(
-		"Usage: "IN_NAME" [OPTIONS]... [COMMANDS]...\n\n"
-		"Sends rcon commands to Minecraft server.\n\n"
-		"Option:\n"
-		"  -h\t\tPrint usage\n"
-		"  -H\t\tServer address (default is localhost)\n"
-		"  -P\t\tPort (default is 25575)\n"
+		"Usage: "IN_NAME" [OPTIONS] [COMMANDS]\n\n"
+		"Send rcon commands to Minecraft server.\n\n"
+		"Options:\n"
+		"  -H\t\tServer address (default: localhost)\n"
+		"  -P\t\tPort (default: 25575)\n"
 		"  -p\t\tRcon password\n"
-		"  -t\t\tInteractive terminal mode\n"
-		"  -s\t\tSilent mode (do not print received packets)\n"
+		"  -t\t\tTerminal mode\n"
+		"  -s\t\tSilent mode\n"
 		"  -c\t\tDisable colors\n"
-		"  -r\t\tOutput raw packets (debugging and custom handling)\n"
-		"  -v\t\tOutput version information\n\n"
-		"Server address, port and password can be set using following environment variables:\n"
+		"  -r\t\tOutput raw packets\n"
+		"  -h\t\tPrint usage\n"
+		"  -v\t\tVersion information\n\n"
+		"Server address, port and password can be set with following environment variables:\n"
 		"  MCRCON_HOST\n"
 		"  MCRCON_PORT\n"
 		"  MCRCON_PASS\n\n"
 		,stdout
 	);
 
+    puts("mcrcon will start in terminal mode if no commands are given.");
 	puts("Command-line options will override environment variables.");
-	puts("Rcon commands with arguments must be enclosed in quotes.\n");
+	puts("Rcon commands with spaces must be enclosed in quotes.\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
 	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/\n");
 
