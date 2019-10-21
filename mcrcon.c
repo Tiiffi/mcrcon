@@ -258,7 +258,7 @@ void usage(void)
 	puts("Command-line options will override environment variables.");
 	puts("Rcon commands with arguments must be enclosed in quotes.\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
-	puts(VER_STR"\nReport bugs to tiiffi_at_gmail_dot_com or https://github.com/Tiiffi/mcrcon/issues/\n");
+	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/\n");
 
 	#ifdef _WIN32
 	    puts("Press enter to exit.");
