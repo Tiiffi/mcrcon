@@ -57,7 +57,7 @@
 #define RCON_PID                0xBADC0DE
 
 // a bit too big perhaps?
-#define DATA_BUFFSIZE 10240
+#define DATA_BUFFSIZE 4096
 
 // rcon packet structure
 typedef struct _rc_packet {
