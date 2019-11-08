@@ -67,7 +67,7 @@ rcon.password=your_rcon_pasword
 ##### Contact:
 
 * WWW:            https://github.com/Tiiffi/mcrcon/
-* MAIL:           tiiffi -> gmail
+* MAIL:           tiiffi at gmail
 * IRC:            tiiffi @ quakenet
 * BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues/
 
@@ -75,7 +75,7 @@ rcon.password=your_rcon_pasword
 
 ### License
 
-This project is licensed under the zlib License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the zlib License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
