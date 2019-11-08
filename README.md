@@ -6,14 +6,20 @@ mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wik
 
 ### Installing:
 
-from sources:
+##### via packet manager:
+See https://pkgs.org/download/mcrcon for available packages in various Linux distros.
+
+- Gentoo Linux: https://packages.gentoo.org/packages/games-util/mcrcon
+- Arch Linux: https://aur.archlinux.org/packages/mcrcon/
+
+##### from sources:
 ```sh
 git clone https://github.com/Tiiffi/mcrcon.git
 cd mcrcon
 make
 sudo make install
 ```
-Check **INSTALL.md** for more details.
+Check [INSTALL.md](INSTALL.md) for more details.
 
 You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/releases/latest
 
