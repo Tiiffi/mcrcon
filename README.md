@@ -13,7 +13,7 @@ cd mcrcon
 make
 sudo make install
 ```
-Check **INSTALL** for more details.
+Check **INSTALL.md** for more details.
 
 You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/releases/latest
 
