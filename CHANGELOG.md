@@ -65,19 +65,3 @@
   - Packet string data limited to max 2048 (DATA_BUFFSIZE) bytes.
     No idea how Minecraft handles multiple rcon packets.
     If someone knows, please mail me so I can implement it.
-
-#### TODO:
-  - Make the receive buffer dynamic??
-  - Change some of the packet size issues to fatal errors.
-  - Code cleanups.
-  - Check global variables (remove if possible).
-  - Add some protocol checks (proper packet id check etc..).
-  - Preprocessor (#ifdef / #ifndef) cleanups.
-  - Follow valve rcon protocol standard strictly?
-  - Multiple packet support if minecraft supports it?!
-  - Investigate if player chat messages gets sent through rcon.
-    If they are, the messaging system requires rewriting.
-  - Name resolving should be integrated to connection creation function.
-  - Dont try to cleanup the socket if not authenticated
-  - Better sockets error reporting
-  - Better error function (VA_ARGS support)
