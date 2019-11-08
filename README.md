@@ -1,4 +1,4 @@
-# mcrcon #
+# mcrcon
 
 mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) client for remote administration and server maintenance scripts.
 
@@ -53,8 +53,8 @@ Example:
 
 ---
 
-### Enable rcon on server
-Remember to enable rcon by adding following lines to ```server.properties``` file.
+##### Enable rcon on server
+Remember to enable rcon by adding following lines to [```server.properties```](https://minecraft.gamepedia.com/Server.properties) file.
 ```
 enable-rcon=true
 rcon.port=25575
