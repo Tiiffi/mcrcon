@@ -22,31 +22,32 @@ You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/re
 ---
 
 ### Usage:
-mcrcon [OPTIONS]... [COMMANDS]...
+mcrcon [OPTIONS] [COMMANDS]
 
 Sends rcon commands to Minecraft server.
 
 ```
 Option:
-  -h            Print usage
-  -H            Server address
-  -P            Port (default is 25575)
+  -H            Server address (default: localhost)
+  -P            Port (default: 25575)
   -p            Rcon password
-  -t            Interactive terminal mode
-  -s            Silent mode (do not print received packets)
+  -t            Terminal mode
+  -s            Silent mode
   -c            Disable colors
-  -r            Output raw packets (debugging and custom handling)
-  -v            Output version information
+  -r            Output raw packets
+  -h            Print usage
+  -v            Version information
 ```
-Commands with arguments must be enclosed in quotes.
-
 Server address, port and password can be set using following environment variables:
 ```
 MCRCON_HOST
 MCRCON_PORT
 MCRCON_PASS
 ```
-Note that command-line options will override environment variables.
+###### Notes:
+- mcrcon will start in terminal mode if no commands are given
+- Command-line options will override environment variables
+- Rcon commands with spaces must be enclosed in quotes
 
 Example:
   ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
