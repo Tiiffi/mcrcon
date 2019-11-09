@@ -1,7 +1,7 @@
 Compiling and installing
 ------------------------
 
-Only dependency is C library with POSIX getopt support. 
+Only dependency is C library and POSIX getopt support. 
 
 Compiling with GCC or CLANG:
 
