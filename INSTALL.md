@@ -16,7 +16,7 @@ Or you can just run "make":
     make uninstall - removes binaries and manpage from the system
     
     file install locations:
-        /usr/share/bin/mcrcon
-        /usr/share/man/man1/mcrcon.1
+        /usr/local/bin/mcrcon
+        /usr/local/share/man/man1/mcrcon.1
 
 Makefile "install" and "uninstall" rules are disabled on windows.
