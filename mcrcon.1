@@ -31,6 +31,8 @@ Output raw packets
 Print usage
 .IP -v
 Output version information
+.IP -w
+Wait for specified duration (seconds) between each command
 .PP
 Commands with spaces must be enclosed in quotes.
 .br
@@ -56,9 +58,9 @@ Send "weather clear" command to server using custom port 1337
 \fBmcrcon\fR -H my.minecraft.server -P 1337 -p password "weather clear"
 .RE
 .PP
-Send three commands to server ("say", "save-all" and "stop")
+Send three commands to server ("say", "save-all" and "stop"), and wait 2 seconds between them
 .RS
-\fBmcrcon\fR -H my.minecraft.server -p password "say Server is restarting!" save-all stop
+\fBmcrcon\fR -H my.minecraft.server -p password -w 2 "say Server is restarting!" save-all stop
 .RE
 .SH BUGS
 Bugs can be reported to \fBtiiffi+mcrcon at gmail\fR or \fBhttps://github.com/Tiiffi/mcrcon/issues/\fR
