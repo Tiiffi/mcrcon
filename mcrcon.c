@@ -658,7 +658,7 @@ int run_commands(int argc, char *argv[])
 			return EXIT_FAILURE;
 
 		if (++i >= argc)
-			break;
+			return EXIT_SUCCESS;
 
 		if (global_wait_seconds > 0)
 		{
@@ -669,8 +669,6 @@ int run_commands(int argc, char *argv[])
 			#endif
 		}
 	}
-
-	return EXIT_SUCCESS;
 }
 
 // interactive terminal mode
