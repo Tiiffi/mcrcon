@@ -110,6 +110,7 @@ static int global_raw_output = 0;
 static int global_silent_mode = 0;
 static int global_print_colors = 1;
 static int global_connection_alive = 1;
+static int global_wait_seconds = 0;
 static int global_rsock;
 
 #ifdef _WIN32
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
 	// default getopt error handler enabled
 	opterr = 1;
 
-	while ((opt = getopt(argc, argv, "vrtcshH:p:P:i")) != -1)
+	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:i")) != -1)
 	{
 		switch (opt)
 		{
@@ -173,7 +174,15 @@ int main(int argc, char *argv[])
 			case 'v':
 				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
 				exit(EXIT_SUCCESS);
-			break;
+			case 'W':
+			case 'w':
+				global_wait_seconds = strtol(optarg, NULL, 10);
+				if (errno != 0)
+				{
+					fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+					exit(EXIT_FAILURE);
+				}
+				break;
 			case 'h':
 			case '?': usage();		break;
 			/*
@@ -247,7 +256,8 @@ void usage(void)
 		"  -c\t\tDisable colors\n"
 		"  -r\t\tOutput raw packets\n"
 		"  -h\t\tPrint usage\n"
-		"  -v\t\tVersion information\n\n"
+		"  -v\t\tVersion information\n"
+ 		"  -w\t\tWait for specified duration (seconds) between each command\n\n"
 		"Server address, port and password can be set with following environment variables:\n"
 		"  MCRCON_HOST\n"
 		"  MCRCON_PORT\n"
@@ -640,23 +650,25 @@ int rcon_command(int sock, char *command)
 
 int run_commands(int argc, char *argv[])
 {
-	int i, ok = 1, ret = EXIT_SUCCESS;
+	int i = optind;
 
-	for (i = optind; i < argc && ok; i++)
+	for (;;)
 	{
-		ok = rcon_command(global_rsock, argv[i]);
-		if (!ok) {
-			ret = EXIT_FAILURE;
-			break;
+		if (!rcon_command(global_rsock, argv[i]))
+			return EXIT_FAILURE;
+
+		if (++i >= argc)
+			return EXIT_SUCCESS;
+
+		if (global_wait_seconds > 0)
+		{
+			#ifdef _WIN32
+				Sleep(global_wait_seconds * 1000);
+			#else
+				sleep(global_wait_seconds);
+			#endif
 		}
-		++ret;
 	}
-
-	// Check if amount of successfully sent commands
-	// matches amount of requested commands
-	if (ret == optind) ret = EXIT_SUCCESS;
-
-	return ret;
 }
 
 // interactive terminal mode
