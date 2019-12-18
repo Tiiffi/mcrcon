@@ -41,9 +41,9 @@ Option:
   -s            Silent mode
   -c            Disable colors
   -r            Output raw packets
+  -w            Wait for specified duration (1 - 600 seconds) between each command
   -h            Print usage
   -v            Version information
-  -w            Wait for specified duration (seconds) between each command
 ```
 Server address, port and password can be set using following environment variables:
 ```
