@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii mcrcon.1
 .\"
-.TH MCRCON 1 "October 2019" "Version 0.6.2"
+.TH MCRCON 1 "December 2019" "Version 0.7.0"
 .SH NAME 
 mcrcon \- send rcon commands to a Minecraft server
 .SH SYNOPSIS
@@ -27,12 +27,12 @@ Silent mode
 Disable colors
 .IP -r
 Output raw packets
+.IP -w
+Wait for specified duration (1 - 600 seconds) between each command
 .IP -h
 Print usage
 .IP -v
 Output version information
-.IP -w
-Wait for specified duration (seconds) between each command
 .PP
 Commands with spaces must be enclosed in quotes.
 .br
