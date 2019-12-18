@@ -7,7 +7,7 @@ mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wik
 ### Installing:
 
 ##### via packet manager:
-See https://pkgs.org/download/mcrcon for available packages in various Linux distros.
+See https://pkgs.org/download/mcrcon for available packages in various Linux distros (note that available packages might be outdated).
 
 - Gentoo Linux: https://packages.gentoo.org/packages/games-util/mcrcon
 - Arch Linux: https://aur.archlinux.org/packages/mcrcon/
@@ -21,7 +21,7 @@ sudo make install
 ```
 Check [INSTALL.md](INSTALL.md) for more details.
 
-You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/releases/latest
+Precompiled binaries (if provided)*: https://github.com/Tiiffi/mcrcon/releases/latest
 
 <sub>*At the moment binaries are provided for Linux and Windows.</sub>
 
@@ -57,7 +57,7 @@ MCRCON_PASS
 - Rcon commands with spaces must be enclosed in quotes
 
 Example:
-  ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
+  ```mcrcon -H my.minecraft.server -p password -w 2 "say Server is restarting!" save-all stop```
 
 ---
 
