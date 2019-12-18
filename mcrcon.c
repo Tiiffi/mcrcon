@@ -182,18 +182,14 @@ int main(int argc, char *argv[])
 				puts("Try 'mcrcon -h' or 'man mcrcon' for help.\n");
 				exit(EXIT_FAILURE);
 
-			case 'H': host = optarg;				break;
-			case 'P': port = optarg;				break;
-			case 'p': pass = optarg;				break;
-			case 'C':
-			case 'c': global_disable_colors = 1;	break;
-			case 'S':
-			case 's': global_silent_mode = 1;		break;
-			case 'T':
-			case 't':
-			case 'I':
-			case 'i': terminal_mode = 1;			break;
-			case 'r': global_raw_output = 1;		break;
+			case 'H': host = optarg;                break;
+			case 'P': port = optarg;                break;
+			case 'p': pass = optarg;                break;
+			case 'c': global_disable_colors = 1;    break;
+			case 's': global_silent_mode = 1;       break;
+			case 'i':
+			case 't': terminal_mode = 1;            break;
+			case 'r': global_raw_output = 1;        break;
 			case 'w':
 				global_wait_seconds = mcrcon_parse_seconds(optarg);
 			break;
