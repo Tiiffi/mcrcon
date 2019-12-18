@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
+#include <limits.h>
 
 #ifdef _WIN32
     // for name resolving on windows
@@ -46,7 +47,7 @@
     #include <netdb.h>
 #endif
 
-#define VERSION "0.6.2"
+#define VERSION "0.7.0"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
@@ -56,7 +57,7 @@
 #define RCON_AUTH_RESPONSE      2
 #define RCON_PID                0xBADC0DE
 
-// a bit too big perhaps?
+
 #define DATA_BUFFSIZE 4096
 
 // rcon packet structure
@@ -65,7 +66,7 @@ typedef struct _rc_packet {
     int id;
     int cmd;
     char data[DATA_BUFFSIZE];
-    // ignoring string2 atm.
+    // ignoring string2 for now
 } rc_packet;
 
 // ===================================
@@ -73,8 +74,8 @@ typedef struct _rc_packet {
 // ===================================
 
 // endianness related functions
-bool        is_bigendian(void);
-int32_t     reverse_int32(int32_t n);
+bool		is_bigendian(void);
+int32_t		reverse_int32(int32_t n);
 
 // Network related functions
 #ifdef _WIN32
@@ -108,10 +109,10 @@ int	        rcon_command(int sock, char *command);
 // =============================================
 static int global_raw_output = 0;
 static int global_silent_mode = 0;
-static int global_print_colors = 1;
+static int global_disable_colors = 0;
 static int global_connection_alive = 1;
-static int global_wait_seconds = 0;
 static int global_rsock;
+static int global_wait_seconds = 0;
 
 #ifdef _WIN32
   // console coloring on windows
@@ -132,6 +133,25 @@ void sighandler(/*int sig*/)
 	#ifndef _WIN32
 	    exit(EXIT_SUCCESS);
 	#endif
+}
+
+#define MAX_WAIT_TIME 600
+
+unsigned int mcrcon_parse_seconds(char *str)
+{
+	long result = strtol(str, NULL, 10);
+
+	if (errno != 0) {
+		fprintf(stderr, "-w invalid value.\nerror %d: %s\n", errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (result <= 0 || result > MAX_WAIT_TIME) {
+		fprintf(stderr, "-w option value is out of range.\nAcceptable value is 1 - %d seconds.\n", MAX_WAIT_TIME);
+		exit(EXIT_FAILURE);
+	}
+
+	return (unsigned int) result;
 }
 
 int main(int argc, char *argv[])
@@ -159,37 +179,28 @@ int main(int argc, char *argv[])
 	{
 		switch (opt)
 		{
-			case 'H': host = optarg;			break;
-			case 'P': port = optarg;			break;
-			case 'p': pass = optarg;			break;
+			case '?':
+				puts("Try 'mcrcon -h' or 'man mcrcon' for help.\n");
+			    exit(EXIT_FAILURE);
+
+			case 'H': host = optarg;				break;
+			case 'P': port = optarg;				break;
+			case 'p': pass = optarg;				break;
 			case 'C':
-			case 'c': global_print_colors = 0;	break;
+			case 'c': global_disable_colors = 1;	break;
 			case 'S':
-			case 's': global_silent_mode = 1;	break;
+			case 's': global_silent_mode = 1;		break;
 			case 'T':
 			case 't':
 			case 'I':
-			case 'i': terminal_mode = 1;		break;
-			case 'r': global_raw_output = 1;	break;
-			case 'v':
-				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
-				exit(EXIT_SUCCESS);
-			case 'W':
+			case 'i': terminal_mode = 1;			break;
+			case 'r': global_raw_output = 1;		break;
 			case 'w':
-				global_wait_seconds = strtol(optarg, NULL, 10);
-				if (errno != 0)
-				{
-					fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-					exit(EXIT_FAILURE);
-				}
-				break;
-			case 'h':
-			case '?': usage();		break;
-			/*
-			  if(optopt == 'P' || optopt == 'H' || optopt == 'p')
-		    	  fprintf (stderr, "Option -%c requires an argument.\n\n", optopt);
-			  else fprintf (stderr, "Unknown option -%c\n\n", optopt);
-			*/
+				global_wait_seconds = mcrcon_parse_seconds(optarg); break;
+			case 'v':
+				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon\n");
+				exit(EXIT_SUCCESS);
+			case 'h': usage(); break;
 
 			default: exit(EXIT_FAILURE);
 		}
@@ -197,7 +208,7 @@ int main(int argc, char *argv[])
 
 	if (pass == NULL)
 	{
-		fputs("You must give password (-p password). Try 'mcrcon -h' or 'man mcrcon' for help.\n\n", stdout);
+		puts("You must give password (-p password). Try 'mcrcon -h' or 'man mcrcon' for help.\n");
 		return 0;
 	}
 
@@ -255,9 +266,9 @@ void usage(void)
 		"  -s\t\tSilent mode\n"
 		"  -c\t\tDisable colors\n"
 		"  -r\t\tOutput raw packets\n"
+		"  -w\t\tWait for specified duration (1 - 600 seconds) between each command\n"
 		"  -h\t\tPrint usage\n"
-		"  -v\t\tVersion information\n"
- 		"  -w\t\tWait for specified duration (seconds) between each command\n\n"
+		"  -v\t\tVersion information\n\n"
 		"Server address, port and password can be set with following environment variables:\n"
 		"  MCRCON_HOST\n"
 		"  MCRCON_PORT\n"
@@ -265,10 +276,10 @@ void usage(void)
 		,stdout
 	);
 
-    puts("mcrcon will start in terminal mode if no commands are given.");
-	puts("Command-line options will override environment variables.");
-	puts("Rcon commands with spaces must be enclosed in quotes.\n");
-	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password \"say Server is restarting!\" save-all stop\n");
+    puts("- mcrcon will start in terminal mode if no commands are given");
+	puts("- Command-line options will override environment variables");
+	puts("- Rcon commands with spaces must be enclosed in quotes\n");
+	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password -w 5 \"say Server is restarting!\" save-all stop\n");
 	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/\n");
 
 	#ifdef _WIN32
@@ -544,7 +555,7 @@ void packet_print(rc_packet *packet)
 	#endif
 
 	// colors enabled so try to handle the bukkit colors for terminal
-	if (global_print_colors == 1)
+	if (global_disable_colors != 1)
 	{
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i)
 		{
