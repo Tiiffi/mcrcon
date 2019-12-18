@@ -74,34 +74,34 @@ typedef struct _rc_packet {
 // ===================================
 
 // endianness related functions
-bool		is_bigendian(void);
-int32_t			reverse_int32(int32_t n);
+bool        is_bigendian(void);
+int32_t	    reverse_int32(int32_t n);
 
 // Network related functions
 #ifdef _WIN32
-void		net_init_WSA(void);
+void        net_init_WSA(void);
 #endif
-void		net_close(int sd);
-int			net_connect(const char *host, const char *port);
-int			net_send(int sd, const uint8_t *buffer, size_t size);
-int			net_send_packet(int sd, rc_packet *packet);
-rc_packet*	net_recv_packet(int sd);
-int			net_clean_incoming(int sd, int size);
+void        net_close(int sd);
+int         net_connect(const char *host, const char *port);
+int         net_send(int sd, const uint8_t *buffer, size_t size);
+int         net_send_packet(int sd, rc_packet *packet);
+rc_packet*  net_recv_packet(int sd);
+int         net_clean_incoming(int sd, int size);
 
 // Misc stuff
-void		usage(void);
+void        usage(void);
 #ifndef _WIN32
-void		print_color(int color);
+void        print_color(int color);
 #endif
-int			get_line(char *buffer, int len);
-int			run_terminal_mode(int sock);
-int			run_commands(int argc, char *argv[]);
+int         get_line(char *buffer, int len);
+int         run_terminal_mode(int sock);
+int         run_commands(int argc, char *argv[]);
 
 // Rcon protocol related functions
-rc_packet*	packet_build(int id, int cmd, char *s1);
-void		packet_print(rc_packet *packet);
-int			rcon_auth(int sock, char *passwd);
-int			rcon_command(int sock, char *command);
+rc_packet*  packet_build(int id, int cmd, char *s1);
+void        packet_print(rc_packet *packet);
+int         rcon_auth(int sock, char *passwd);
+int         rcon_command(int sock, char *command);
 
 
 // =============================================
