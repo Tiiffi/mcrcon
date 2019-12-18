@@ -1,5 +1,8 @@
 #### Version history:
 
+###### 0.7.0
+ - Add -w option for rcon command throttling
+
 ###### 0.6.2
  - Set default address to localhost
 
