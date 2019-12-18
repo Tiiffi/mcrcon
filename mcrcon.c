@@ -75,7 +75,7 @@ typedef struct _rc_packet {
 
 // endianness related functions
 bool		is_bigendian(void);
-int32_t		reverse_int32(int32_t n);
+int32_t			reverse_int32(int32_t n);
 
 // Network related functions
 #ifdef _WIN32
@@ -89,19 +89,19 @@ rc_packet*	net_recv_packet(int sd);
 int			net_clean_incoming(int sd, int size);
 
 // Misc stuff
-void	    usage(void);
+void		usage(void);
 #ifndef _WIN32
-void	    print_color(int color);
+void		print_color(int color);
 #endif
-int		    get_line(char *buffer, int len);
-int		    run_terminal_mode(int sock);
-int		    run_commands(int argc, char *argv[]);
+int			get_line(char *buffer, int len);
+int			run_terminal_mode(int sock);
+int			run_commands(int argc, char *argv[]);
 
 // Rcon protocol related functions
 rc_packet*	packet_build(int id, int cmd, char *s1);
 void		packet_print(rc_packet *packet);
-int	        rcon_auth(int sock, char *passwd);
-int	        rcon_command(int sock, char *command);
+int			rcon_auth(int sock, char *passwd);
+int			rcon_command(int sock, char *command);
 
 
 // =============================================
@@ -169,8 +169,7 @@ int main(int argc, char *argv[])
 	if (!host)
 		host = "localhost";
 
-	if(argc < 1 && pass == NULL)
-		usage();
+	if(argc < 1 && pass == NULL) usage();
 
 	// default getopt error handler enabled
 	opterr = 1;
