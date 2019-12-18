@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 		{
 			case '?':
 				puts("Try 'mcrcon -h' or 'man mcrcon' for help.\n");
-			    exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE);
 
 			case 'H': host = optarg;				break;
 			case 'P': port = optarg;				break;
@@ -196,25 +196,25 @@ int main(int argc, char *argv[])
 			case 'i': terminal_mode = 1;			break;
 			case 'r': global_raw_output = 1;		break;
 			case 'w':
-				global_wait_seconds = mcrcon_parse_seconds(optarg); break;
+				global_wait_seconds = mcrcon_parse_seconds(optarg);
+			break;
+
 			case 'v':
 				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon\n");
 				exit(EXIT_SUCCESS);
+
 			case 'h': usage(); break;
 
 			default: exit(EXIT_FAILURE);
 		}
 	}
 
-	if (pass == NULL)
-	{
+	if (pass == NULL) {
 		puts("You must give password (-p password). Try 'mcrcon -h' or 'man mcrcon' for help.\n");
 		return 0;
 	}
 
-	if(optind == argc && terminal_mode == 0)
-		terminal_mode = 1;
-
+	if(optind == argc && terminal_mode == 0) terminal_mode = 1;
 
 	// safety features to prevent "IO: Connection reset" bug on the server side
 	atexit(&exit_proc);
@@ -276,7 +276,7 @@ void usage(void)
 		,stdout
 	);
 
-    puts("- mcrcon will start in terminal mode if no commands are given");
+	puts("- mcrcon will start in terminal mode if no commands are given");
 	puts("- Command-line options will override environment variables");
 	puts("- Rcon commands with spaces must be enclosed in quotes\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password -w 5 \"say Server is restarting!\" save-all stop\n");
