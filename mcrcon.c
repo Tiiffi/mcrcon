@@ -139,15 +139,21 @@ void sighandler(/*int sig*/)
 
 unsigned int mcrcon_parse_seconds(char *str)
 {
-	long result = strtol(str, NULL, 10);
+	char *end;
+	long result = strtol(str, &end, 10);
 
 	if (errno != 0) {
 		fprintf(stderr, "-w invalid value.\nerror %d: %s\n", errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
+	if (end == str) {
+		fprintf(stderr, "-w invalid value (not a number?)\n");
+		exit(EXIT_FAILURE);
+	}
+
 	if (result <= 0 || result > MAX_WAIT_TIME) {
-		fprintf(stderr, "-w option value is out of range.\nAcceptable value is 1 - %d seconds.\n", MAX_WAIT_TIME);
+		fprintf(stderr, "-w value out of range.\nAcceptable value is 1 - %d (seconds).\n", MAX_WAIT_TIME);
 		exit(EXIT_FAILURE);
 	}
 
@@ -178,10 +184,6 @@ int main(int argc, char *argv[])
 	{
 		switch (opt)
 		{
-			case '?':
-				puts("Try 'mcrcon -h' or 'man mcrcon' for help.\n");
-				exit(EXIT_FAILURE);
-
 			case 'H': host = optarg;                break;
 			case 'P': port = optarg;                break;
 			case 'p': pass = optarg;                break;
@@ -195,17 +197,19 @@ int main(int argc, char *argv[])
 			break;
 
 			case 'v':
-				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon\n");
+				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
 				exit(EXIT_SUCCESS);
 
 			case 'h': usage(); break;
-
-			default: exit(EXIT_FAILURE);
+			case '?':
+			default:
+				puts("Try 'mcrcon -h' or 'man mcrcon' for help.");
+				exit(EXIT_FAILURE);
 		}
 	}
 
 	if (pass == NULL) {
-		puts("You must give password (-p password). Try 'mcrcon -h' or 'man mcrcon' for help.\n");
+		puts("You must give password (-p password).\nTry 'mcrcon -h' or 'man mcrcon' for help.");
 		return 0;
 	}
 
@@ -261,7 +265,7 @@ void usage(void)
 		"  -s\t\tSilent mode\n"
 		"  -c\t\tDisable colors\n"
 		"  -r\t\tOutput raw packets\n"
-		"  -w\t\tWait for specified duration (1 - 600 seconds) between each command\n"
+		"  -w\t\tWait for specified duration (seconds) between each command (1 - 600s)\n"
 		"  -h\t\tPrint usage\n"
 		"  -v\t\tVersion information\n\n"
 		"Server address, port and password can be set with following environment variables:\n"
@@ -275,7 +279,7 @@ void usage(void)
 	puts("- Command-line options will override environment variables");
 	puts("- Rcon commands with spaces must be enclosed in quotes\n");
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password -w 5 \"say Server is restarting!\" save-all stop\n");
-	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/\n");
+	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/");
 
 	#ifdef _WIN32
 	    puts("Press enter to exit.");
