@@ -41,7 +41,7 @@ Option:
   -s            Silent mode
   -c            Disable colors
   -r            Output raw packets
-  -w            Wait for specified duration (1 - 600 seconds) between each command
+  -w            Wait for specified duration (seconds) between each command (1 - 600s)
   -h            Print usage
   -v            Version information
 ```
