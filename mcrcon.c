@@ -68,13 +68,10 @@ typedef struct _rc_packet {
     // ignoring string2 for now
 } rc_packet;
 
+
 // ===================================
 //  FUNCTION DEFINITIONS              
 // ===================================
-
-// endianness related functions
-bool        is_bigendian(void);
-int32_t	    reverse_int32(int32_t n);
 
 // Network related functions
 #ifdef _WIN32
@@ -695,29 +692,4 @@ int get_line(char *buffer, int bsize)
 	}
 
 	return len;
-}
-
-// http://www.ibm.com/developerworks/aix/library/au-endianc/
-bool is_bigendian(void)
-{
-	const int32_t n = 1;
-
-	if (*(const uint8_t *) &n == 0 )
-		return true;
-	
-	return false;
-}
-
-int32_t reverse_int32(int32_t n)
-{
-	int32_t tmp;
-	uint8_t *t = (uint8_t *) &tmp;
-	uint8_t *p = (uint8_t *) &n;
-
-	t[0] = p[3];
-	t[1] = p[2];
-	t[2] = p[1];
-	t[3] = p[0];
-
-	return tmp;
 }
