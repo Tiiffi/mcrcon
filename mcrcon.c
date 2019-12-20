@@ -57,7 +57,6 @@
 #define RCON_AUTH_RESPONSE      2
 #define RCON_PID                0xBADC0DE
 
-
 #define DATA_BUFFSIZE 4096
 
 // rcon packet structure
@@ -193,7 +192,8 @@ int main(int argc, char *argv[])
 			break;
 
 			case 'v':
-				puts(VER_STR"\nhttps://github.com/Tiiffi/mcrcon");
+				puts(VER_STR" - https://github.com/Tiiffi/mcrcon");
+				puts("Bug reports: tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/");
 				exit(EXIT_SUCCESS);
 
 			case 'h': usage(); break;
@@ -219,9 +219,9 @@ int main(int argc, char *argv[])
 	signal(SIGINT, &sighandler);
 
 	#ifdef _WIN32
-	    net_init_WSA();
-	    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	    if (console_handle == INVALID_HANDLE_VALUE)
+		net_init_WSA();
+		console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (console_handle == INVALID_HANDLE_VALUE)
 			console_handle = NULL;
 	#endif
 
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
 void usage(void)
 {
-	fputs(
+	puts(
 		"Usage: "IN_NAME" [OPTIONS] [COMMANDS]\n\n"
 		"Send rcon commands to Minecraft server.\n\n"
 		"Options:\n"
@@ -267,15 +267,15 @@ void usage(void)
 		"Server address, port and password can be set with following environment variables:\n"
 		"  MCRCON_HOST\n"
 		"  MCRCON_PORT\n"
-		"  MCRCON_PASS\n\n"
-		,stdout
+		"  MCRCON_PASS\n"
 	);
 
-	puts("- mcrcon will start in terminal mode if no commands are given");
-	puts("- Command-line options will override environment variables");
-	puts("- Rcon commands with spaces must be enclosed in quotes\n");
+	puts (
+		"- mcrcon will start in terminal mode if no commands are given\n"
+		"- Command-line options will override environment variables\n"
+		"- Rcon commands with spaces must be enclosed in quotes\n"
+	);
 	puts("Example:\n\t"IN_NAME" -H my.minecraft.server -p password -w 5 \"say Server is restarting!\" save-all stop\n");
-	puts(VER_STR"\nReport bugs to tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/");
 
 	#ifdef _WIN32
 	    puts("Press enter to exit.");
