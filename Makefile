@@ -1,7 +1,10 @@
-# if you want to cross compile
-# export PATH=$PATH:/path/to/compiler/bin
-# export CROSS_COMPILE=arm-none-linux-gnueabi-
-# make
+# if you want to cross compile:
+#   export PATH=$PATH:/path/to/compiler/bin
+#   export CROSS_COMPILE=arm-none-linux-gnueabi-
+#   make
+#
+# Windows cross compile:
+#   i686-w64-mingw32-gcc -std=gnu99 -Wall -Wextra -Wpedantic -Os -s -o mcrcon.exe mcrcon.c -lws2_32
 
 EXENAME = mcrcon
 PREFIX ?= /usr/local
@@ -10,7 +13,7 @@ INSTALL = install
 LINKER =
 RM = rm -v -f
 
-CC = cc
+CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
 EXTRAFLAGS ?= -fstack-protector-strong
 

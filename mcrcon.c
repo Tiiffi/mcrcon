@@ -493,15 +493,15 @@ void print_color(int color)
 	};
 
 	/* 0x72: 'r' */
-	if(color == 0 || color == 0x72) fputs("\033[0m", stdout); /* CANCEL COLOR */
+	if (color == 0 || color == 0x72) fputs("\033[0m", stdout); /* CANCEL COLOR */
 	else
 	#endif
 	{
-		if(color >= 0x61 && color <= 0x66) color -= 0x57;
-		else if(color >= 0x30 && color <= 0x39)
+		if (color >= 0x61 && color <= 0x66) color -= 0x57;
+		else if (color >= 0x30 && color <= 0x39)
 			color -= 0x30;
-		else if(color == 0x6e)
-			color=16; /* 0x6e: 'n' */
+		else if (color == 0x6e)
+			color = 16; /* 0x6e: 'n' */
 		else return;
 
 		#ifndef _WIN32
