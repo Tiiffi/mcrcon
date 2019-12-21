@@ -2,6 +2,7 @@
 
 ###### 0.7.0
  - Add -w option for rcon command throttling
+    * Thanks HorlogeSkynet @ Github
 
 ###### 0.6.2
  - Set default address to localhost

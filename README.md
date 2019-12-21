@@ -12,7 +12,7 @@ See https://pkgs.org/download/mcrcon for available packages in various Linux dis
 - Gentoo Linux: https://packages.gentoo.org/packages/games-util/mcrcon
 - Arch Linux: https://aur.archlinux.org/packages/mcrcon/
 
-##### from sources:
+##### building from sources:
 ```sh
 git clone https://github.com/Tiiffi/mcrcon.git
 cd mcrcon
@@ -57,7 +57,9 @@ MCRCON_PASS
 - Rcon commands with spaces must be enclosed in quotes
 
 Example:
-  ```mcrcon -H my.minecraft.server -p password -w 2 "say Server is restarting!" save-all stop```
+> Send three commands ("say", "save-all", "stop") and wait five seconds between the commands.
+
+  ```mcrcon -H my.minecraft.server -p password -w 5 "say Server is restarting!" save-all stop```
 
 ---
 

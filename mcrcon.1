@@ -37,7 +37,7 @@ Output version information
 Commands with spaces must be enclosed in quotes.
 .br
 mcrcon will start in terminal mode if no commands are given.
-.SH ENVIRONMENTAL VARIABLES
+.SH ENVIRONMENT VARIABLES
 Server address, port and password can be set with following environment variables:
 .PP
 \fBMCRCON_HOST
@@ -58,9 +58,9 @@ Send "weather clear" command to server using custom port 1337
 \fBmcrcon\fR -H my.minecraft.server -P 1337 -p password "weather clear"
 .RE
 .PP
-Send three commands to server ("say", "save-all" and "stop"), and wait 2 seconds between them
+Send three commands ("say", "save-all", "stop") and wait five seconds between the commands.
 .RS
-\fBmcrcon\fR -H my.minecraft.server -p password -w 2 "say Server is restarting!" save-all stop
+\fBmcrcon\fR -H my.minecraft.server -p password -w 5 "say Server is restarting!" save-all stop
 .RE
 .SH BUGS
-Bugs can be reported to \fBtiiffi+mcrcon at gmail\fR or \fBhttps://github.com/Tiiffi/mcrcon/issues/\fR
+Report bugs to \fBtiiffi+mcrcon at gmail\fR or \fBhttps://github.com/Tiiffi/mcrcon/issues/\fR
