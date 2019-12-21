@@ -47,7 +47,7 @@
     #include <netdb.h>
 #endif
 
-#define VERSION "0.7.0"
+#define VERSION "0.7.1"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
@@ -171,7 +171,8 @@ int main(int argc, char *argv[])
 
 	// default getopt error handler enabled
 	opterr = 1;
-	for (int opt = getopt(argc, argv, "vrtcshw:H:p:P:i"); opt != -1;)
+	int opt;
+	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:i")) != -1)
 	{
 		switch (opt) {
 			case 'H': host = optarg;                break;
@@ -652,6 +653,7 @@ int run_terminal_mode(int sock)
 	puts("Logged in. Type 'quit' or 'exit' to quit.");
 
 	while (global_connection_alive) {
+		putchar('>');
 		int len = get_line(command, DATA_BUFFSIZE);
 
 		if ((strcmp(command, "exit") && strcmp(command, "quit")) == 0)
@@ -663,6 +665,17 @@ int run_terminal_mode(int sock)
 		if(len > 0 && global_connection_alive)
 			ret += rcon_command(sock, command);
 
+		/* Special case for "stop" command to prevent server-side bug.
+		 * https://bugs.mojang.com/browse/MC-154617
+		 * 
+		 * NOTE: This is hacky workaround which should be handled better to
+		 *       ensure compatibility with other servers using source RCON.
+		 * NOTE: strcasecmp() is POSIX function.
+		 */
+		if (strcasecmp(command, "stop") == 0) {
+			break;
+		}
+
 		command[0] = len = 0;
 	}
 
@@ -672,8 +685,6 @@ int run_terminal_mode(int sock)
 // gets line from stdin and deals with rubbish left in the input buffer
 int get_line(char *buffer, int bsize)
 {
-	fputs(">", stdout);
-
 	char *ret = fgets(buffer, bsize, stdin);
 	if (ret == NULL)
 		exit(EXIT_FAILURE);

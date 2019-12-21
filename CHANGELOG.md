@@ -1,5 +1,9 @@
 #### Version history:
 
+###### 0.7.1
+ - Add workaround to prevent server-side bug.
+   https://bugs.mojang.com/browse/MC-154617
+
 ###### 0.7.0
  - Add -w option for rcon command throttling
     * Thanks HorlogeSkynet @ Github
