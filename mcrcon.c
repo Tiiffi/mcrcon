@@ -158,7 +158,6 @@ unsigned int mcrcon_parse_seconds(char *str)
 
 int main(int argc, char *argv[])
 {
-	int opt;
 	int terminal_mode = 0;
 
 	char *host = getenv("MCRCON_HOST");
@@ -172,8 +171,7 @@ int main(int argc, char *argv[])
 
 	// default getopt error handler enabled
 	opterr = 1;
-
-	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:i")) != -1)
+	for (int opt = getopt(argc, argv, "vrtcshw:H:p:P:i"); opt != -1;)
 	{
 		switch (opt) {
 			case 'H': host = optarg;                break;
@@ -190,7 +188,7 @@ int main(int argc, char *argv[])
 
 			case 'v':
 				puts(VER_STR" - https://github.com/Tiiffi/mcrcon");
-				puts("Bug reports: tiiffi+mcrcon at gmail or https://github.com/Tiiffi/mcrcon/issues/");
+				puts("Bug reports:\n\ttiiffi+mcrcon at gmail\n\thttps://github.com/Tiiffi/mcrcon/issues/");
 				exit(EXIT_SUCCESS);
 
 			case 'h': usage(); break;
@@ -528,14 +526,13 @@ void packet_print(rc_packet *packet)
 
 	#ifdef _WIN32
 		CONSOLE_SCREEN_BUFFER_INFO console_info;
-
 		if (GetConsoleScreenBufferInfo(console_handle, &console_info) != 0) {
 			def_color = console_info.wAttributes + 0x30;
 		} else def_color = 0x37;
 	#endif
 
 	// colors enabled so try to handle the bukkit colors for terminal
-	if (global_disable_colors != 1) {
+	if (global_disable_colors == 0) {
 		for (i = 0; (unsigned char) packet->data[i] != 0; ++i) {
 			if (packet->data[i] == 0x0A) print_color(def_color);
 			else if((unsigned char) packet->data[i] == 0xc2 && (unsigned char) packet->data[i+1] == 0xa7) {
@@ -652,10 +649,13 @@ int run_terminal_mode(int sock)
 	int ret = 0;
 	char command[DATA_BUFFSIZE] = {0x00};
 
-	puts("Logged in. Type \"Q\" to quit!");
+	puts("Logged in. Type 'quit' or 'exit' to quit.");
 
 	while (global_connection_alive) {
 		int len = get_line(command, DATA_BUFFSIZE);
+
+		if ((strcmp(command, "exit") && strcmp(command, "quit")) == 0)
+			break;
 
 		if(command[0] == 'Q' && command[1] == 0)
 			break;
@@ -673,6 +673,7 @@ int run_terminal_mode(int sock)
 int get_line(char *buffer, int bsize)
 {
 	fputs(">", stdout);
+
 	char *ret = fgets(buffer, bsize, stdin);
 	if (ret == NULL)
 		exit(EXIT_FAILURE);
