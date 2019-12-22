@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 	// default getopt error handler enabled
 	opterr = 1;
 	int opt;
-	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:i")) != -1)
+	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:")) != -1)
 	{
 		switch (opt) {
 			case 'H': host = optarg;                break;
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 			case 'p': pass = optarg;                break;
 			case 'c': global_disable_colors = 1;    break;
 			case 's': global_silent_mode = 1;       break;
-			case 'i':
+			case 'i': /* reserved for interp mode */break;
 			case 't': terminal_mode = 1;            break;
 			case 'r': global_raw_output = 1;        break;
 			case 'w':
@@ -656,7 +656,7 @@ int run_terminal_mode(int sock)
 		putchar('>');
 		int len = get_line(command, DATA_BUFFSIZE);
 
-		if ((strcmp(command, "exit") && strcmp(command, "quit")) == 0)
+		if ((strcasecmp(command, "exit") && strcasecmp(command, "quit")) == 0)
 			break;
 
 		if(command[0] == 'Q' && command[1] == 0)
