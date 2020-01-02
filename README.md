@@ -1,15 +1,31 @@
+<<<<<<< HEAD
+### Installing:
+=======
+# mcrcon
+>>>>>>> develop
+
+mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) client for remote administration and server maintenance scripts.
+
+---
+
 ### Installing:
 
-from sources:
+##### via packet manager:
+See https://pkgs.org/download/mcrcon for available packages in various Linux distros (note that available packages might be outdated).
+
+- Gentoo Linux: https://packages.gentoo.org/packages/games-util/mcrcon
+- Arch Linux: https://aur.archlinux.org/packages/mcrcon/
+
+##### building from sources:
 ```sh
 git clone https://github.com/Tiiffi/mcrcon.git
 cd mcrcon
 make
 sudo make install
 ```
-Check **INSTALL** for more details.
+Check [INSTALL.md](INSTALL.md) for more details.
 
-You can also download precompiled binaries*: https://github.com/Tiiffi/mcrcon/releases/latest
+Precompiled binaries (if provided)*: https://github.com/Tiiffi/mcrcon/releases/latest
 
 <sub>*At the moment binaries are provided for Linux and Windows.</sub>
 
@@ -22,33 +38,42 @@ Sends rcon commands to Minecraft server.
 
 ```
 Option:
-  -h            Print usage
-  -H            Server address
-  -P            Port (default is 25575)
+  -H            Server address (default: localhost)
+  -P            Port (default: 25575)
   -p            Rcon password
-  -t            Interactive terminal mode
-  -s            Silent mode (do not print received packets)
+  -t            Terminal mode
+  -s            Silent mode
   -c            Disable colors
-  -r            Output raw packets (debugging and custom handling)
-  -v            Output version information
+  -r            Output raw packets
+  -w            Wait for specified duration (seconds) between each command (1 - 600s)
+  -h            Print usage
+  -v            Version information
 ```
-Commands with arguments must be enclosed in quotes.
-
 Server address, port and password can be set using following environment variables:
 ```
 MCRCON_HOST
 MCRCON_PORT
 MCRCON_PASS
 ```
-Note that command-line options will override environment variables.
+###### Notes:
+- mcrcon will start in terminal mode if no commands are given
+- Command-line options will override environment variables
+- Rcon commands with spaces must be enclosed in quotes
 
 Example:
-  ```mcrcon -H my.minecraft.server -p password "say Server is restarting!" save-all stop```
+> Send three commands ("say", "save-all", "stop") and wait five seconds between the commands.
+
+  ```mcrcon -H my.minecraft.server -p password -w 5 "say Server is restarting!" save-all stop```
 
 ---
 
+<<<<<<< HEAD
 ### Enable rcon on server
 Remember to enable rcon by adding following lines to ```server.properties``` file.
+=======
+##### Enable rcon on server
+Remember to enable rcon by adding following lines to [```server.properties```](https://minecraft.gamepedia.com/Server.properties) file.
+>>>>>>> develop
 ```
 enable-rcon=true
 rcon.port=25575
@@ -57,12 +82,22 @@ rcon.password=your_rcon_pasword
 
 ---
 
+<<<<<<< HEAD
 #### Contact:
+=======
+##### Contact:
+>>>>>>> develop
 
 * WWW:            https://github.com/Tiiffi/mcrcon/
-* MAIL:           tiiffi_at_gmail_dot_com
+* MAIL:           tiiffi at gmail
 * IRC:            tiiffi @ quakenet
 * BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues/
+
+---
+
+### License
+
+This project is licensed under the zlib License - see the [LICENSE](LICENSE) file for details.
 
 ---
 

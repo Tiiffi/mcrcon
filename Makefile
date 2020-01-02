@@ -1,19 +1,23 @@
-# if you want to cross compile
-# export PATH=$PATH:/path/to/compiler/bin
-# export CROSS_COMPILE=arm-none-linux-gnueabi-
-# make
+# if you want to cross compile:
+#   export PATH=$PATH:/path/to/compiler/bin
+#   export CROSS_COMPILE=arm-none-linux-gnueabi-
+#   make
+#
+# Windows cross compile:
+#   i686-w64-mingw32-gcc -std=gnu99 -Wall -Wextra -Wpedantic -Os -s -o mcrcon.exe mcrcon.c -lws2_32
 
 EXENAME = mcrcon
 PREFIX ?= /usr/local
 
-EXTRAFLAGS ?= -fstack-protector-strong
-
 INSTALL = install
 LINKER =
-RM = rm -f
+RM = rm -v -f
+
+CC = gcc
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+EXTRAFLAGS ?= -fstack-protector-strong
 
 ifeq ($(OS), Windows_NT)
-    CC = gcc
 	LINKER = -lws2_32
 	EXENAME = mcrcon.exe
 	RM = cmd /C del /F
@@ -21,9 +25,7 @@ endif
 
 ifeq ($(shell uname), Darwin)
 	INSTALL = ginstall
-	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os
-else
-	CFLAGS ?= -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+	CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os
 endif
 
 .PHONY: all
@@ -35,13 +37,13 @@ $(EXENAME): mcrcon.c
 ifneq ($(OS), Windows_NT)
 .PHONY: install
 install:
-	$(INSTALL) -vD $(EXENAME) $(PREFIX)/bin/$(EXENAME)
-	$(INSTALL) -vD -m 0644 mcrcon.1 $(PREFIX)/share/man/man1/mcrcon.1
+	$(INSTALL) -vD $(EXENAME) $(DESTDIR)$(PREFIX)/bin/$(EXENAME)
+	$(INSTALL) -vD -m 0644 mcrcon.1 $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon installed. Run 'make uninstall' if you want to uninstall.\n"
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(PREFIX)/bin/$(EXENAME) $(PREFIX)/share/man/man1/mcrcon.1
+	$(RM) $(DESTDIR)$(PREFIX)/bin/$(EXENAME) $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon uninstalled.\n"
 endif
 

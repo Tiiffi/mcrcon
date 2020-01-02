@@ -1,9 +1,21 @@
-####Version history:
-######0.6.1
+#### Version history:
+
+###### 0.7.1
+ - Add workaround to prevent server-side bug.
+   https://bugs.mojang.com/browse/MC-154617
+
+###### 0.7.0
+ - Add -w option for rcon command throttling
+    * Thanks HorlogeSkynet @ Github
+
+###### 0.6.2
+ - Set default address to localhost
+
+###### 0.6.1
  - Color coding fixed
     * Thanks to Hagb @ Github
 
-######0.6.0
+###### 0.6.0
  - Version numbering changed to more sane system (0.0.5 -> 0.6.0)
  - Fixed munged output
  - Support for using environment variables to set some basic options
@@ -14,7 +26,7 @@
  - Man page added 
  - Proper makefile added
 
-######0.0.5
+###### 0.0.5
   - IPv6 support!
      * Thanks to 'Tanja84dk' for addressing the real need of IPv6.
 
@@ -34,20 +46,20 @@
 
   - Client now tries to clean the incoming socket data if last package was out of spec.
 
-######0.0.4
+###### 0.0.4
   - Reverted back to default getopts options error handler (opterr = 1).
     Custom error handler requires rewriting.
   - Some cosmetic changes in program output strings.
   - Program usage(); function now waits for enter before exiting on Windows.
 
-######0.0.3
+###### 0.0.3
   - Colors are now supported on Windows too!
   - Terminal mode is now triggered with "-t" flag. "-i" flag still works for
     backwards compatibility.
   - Bug fixes (Packet size check always evaluating false and color validity
     check always evaluating true).
 
-######0.0.2
+###### 0.0.2
   - License changed from 'ISC License' to 'zlib/libpng License'.
   - Bug fixes & code cleanups
   - Interactive mode (-i flag). Client acts as interactive terminal.
@@ -55,25 +67,9 @@
     If connecting or authentication fails, the return value is -1.
   - Colors are now enabled by default. Now '-c' flag disables the color support.
 
-######0.0.1
+###### 0.0.1
   - Added experimental support for bukkit colors.
     Should work with any sh compatible shell.
   - Packet string data limited to max 2048 (DATA_BUFFSIZE) bytes.
     No idea how Minecraft handles multiple rcon packets.
     If someone knows, please mail me so I can implement it.
-
-####TODO:
-  - Make the receive buffer dynamic??
-  - Change some of the packet size issues to fatal errors.
-  - Code cleanups.
-  - Check global variables (remove if possible).
-  - Add some protocol checks (proper packet id check etc..).
-  - Preprocessor (#ifdef / #ifndef) cleanups.
-  - Follow valve rcon protocol standard strictly?
-  - Multiple packet support if minecraft supports it?!
-  - Investigate if player chat messages gets sent through rcon.
-    If they are, the messaging system requires rewriting.
-  - Name resolving should be integrated to connection creation function.
-  - Dont try to cleanup the socket if not authenticated
-  - Better sockets error reporting
-  - Better error function (VA_ARGS support)
