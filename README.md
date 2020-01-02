@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 ### Installing:
 =======
 # mcrcon
->>>>>>> develop
 
 mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) client for remote administration and server maintenance scripts.
 
