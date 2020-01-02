@@ -63,13 +63,8 @@ Example:
 
 ---
 
-<<<<<<< HEAD
-### Enable rcon on server
-Remember to enable rcon by adding following lines to ```server.properties``` file.
-=======
 ##### Enable rcon on server
 Remember to enable rcon by adding following lines to [```server.properties```](https://minecraft.gamepedia.com/Server.properties) file.
->>>>>>> develop
 ```
 enable-rcon=true
 rcon.port=25575
@@ -78,11 +73,7 @@ rcon.password=your_rcon_pasword
 
 ---
 
-<<<<<<< HEAD
-#### Contact:
-=======
 ##### Contact:
->>>>>>> develop
 
 * WWW:            https://github.com/Tiiffi/mcrcon/
 * MAIL:           tiiffi at gmail
