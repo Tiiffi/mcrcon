@@ -1,8 +1,9 @@
 #### Version history:
 
 ###### 0.7.1
+ - Deprecate `-i` flag for invoking terminal mode
  - Add workaround to prevent server-side bug.
-   https://bugs.mojang.com/browse/MC-154617
+   * https://bugs.mojang.com/browse/MC-154617
 
 ###### 0.7.0
  - Add -w option for rcon command throttling
