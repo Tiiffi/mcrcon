@@ -573,7 +573,7 @@ rc_packet *packet_build(int id, int cmd, char *s1)
 	packet.size = sizeof(int) * 2 + s1_len + 2;
 	packet.id = id;
 	packet.cmd = cmd;
-	strncpy(packet.data, s1, DATA_BUFFSIZE);
+	strncpy(packet.data, s1, DATA_BUFFSIZE - 1);
 
 	return &packet;
 }
