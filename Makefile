@@ -10,12 +10,12 @@ EXENAME = mcrcon
 PREFIX ?= /usr/local
 
 INSTALL = install
-LINKER =
+LINKER = -lreadline
 RM = rm -v -f
 
 CC = gcc
-CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
-EXTRAFLAGS ?= -fstack-protector-strong
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s 
+EXTRAFLAGS ?= -fstack-protector-strong 
 
 ifeq ($(OS), Windows_NT)
 	LINKER = -lws2_32
