@@ -57,14 +57,16 @@
 #define RCON_AUTH_RESPONSE      2
 #define RCON_PID                0xBADC0DE
 
-#define DATA_BUFFSIZE 4096
+#define DATA_BUFFSIZE        4096
+#define RCON_PACKET_MAX_SIZE 4106
+#define RCON_PACKET_MIN_SIZE 10
 
 // rcon packet structure
 typedef struct _rc_packet {
     int size;
     int id;
     int cmd;
-    char data[DATA_BUFFSIZE];
+    char data[DATA_BUFFSIZE+1];
     // ignoring string2 for now
 } rc_packet;
 
@@ -408,16 +410,40 @@ int net_send_packet(int sd, rc_packet *packet)
 	return ret == -1 ? -1 : 1;
 }
 
+
+size_t net_read_bytes( int sd, void *buffer, size_t bytes )
+{
+        size_t received = 0;
+
+        while( received < bytes )
+        {
+                int ret = recv( sd, (uint8_t*)buffer + received, bytes - received, 0 );
+
+                if ( ret == 0 )
+                {
+			fprintf(stderr, "Connection lost.\n");
+			global_connection_alive = 0;
+			return 0;
+                }
+                received += ret;
+        }
+
+        return received;
+}
+
+int net_read_int32( int sd, int32_t *value )
+{
+        return net_read_bytes( sd, value, sizeof(int32_t) );
+}
+
 rc_packet *net_recv_packet(int sd)
 {
 	int psize;
 	static rc_packet packet = {0, 0, 0, { 0x00 }};
 
-	// packet.size = packet.id = packet.cmd = 0;
+	int ret = net_read_int32( sd, &psize );
 
-	int ret = recv(sd, (char *) &psize, sizeof(int), 0);
-
-	if (ret == 0) {
+        if (ret == 0) {
 		fprintf(stderr, "Connection lost.\n");
 		global_connection_alive = 0;
 		return NULL;
@@ -429,10 +455,10 @@ rc_packet *net_recv_packet(int sd)
 		return NULL;
 	}
 
-	if (psize < 10 || psize > DATA_BUFFSIZE) {
-		fprintf(stderr, "Warning: invalid packet size (%d). Must over 10 and less than %d.\n", psize, DATA_BUFFSIZE);
+	if (psize < RCON_PACKET_MIN_SIZE || psize > RCON_PACKET_MAX_SIZE) {
+		fprintf(stderr, "Warning: invalid packet size (%d). Must >= %d and less <= %d.\n", psize, RCON_PACKET_MIN_SIZE, RCON_PACKET_MAX_SIZE);
 
-		if(psize > DATA_BUFFSIZE  || psize < 0) psize = DATA_BUFFSIZE;
+		if(psize > RCON_PACKET_MAX_SIZE || psize < 0) psize = RCON_PACKET_MAX_SIZE;
 		net_clean_incoming(sd, psize);
 
 		return NULL;
@@ -440,17 +466,11 @@ rc_packet *net_recv_packet(int sd)
 
 	packet.size = psize;
 
-	int received = 0;
-	while (received < psize) {
-		ret = recv(sd, (char *) &packet + sizeof(int) + received, psize - received, 0);
-		if (ret == 0) { /* connection closed before completing receving */
-			fprintf(stderr, "Connection lost.\n");
-			global_connection_alive = 0;
-			return NULL;
-		}
-
-		received += ret;
-	}
+        ret = net_read_bytes( sd, &packet.id, psize );
+        if ( ret == 0 )
+        {
+                return NULL;
+        }
 
 	return &packet;
 }
@@ -512,8 +532,11 @@ void print_color(int color)
 	}
 }
 
+
 // this hacky mess might use some optimizing
-void packet_print(rc_packet *packet)
+/* Providing a way to not spit out the newline in the case of
+ * continued packet responses */
+void packet_print_nl(rc_packet *packet, int newline )
 {
 	if (global_raw_output == 1) {
 		for (int i = 0; packet->data[i] != 0; ++i)
@@ -556,7 +579,14 @@ void packet_print(rc_packet *packet)
 	}
 
 	// print newline if string has no newline
-	if (packet->data[i-1] != 10 && packet->data[i-1] != 13) putchar('\n');
+        if ( newline ) {
+                if (packet->data[i-1] != 10 && packet->data[i-1] != 13) putchar('\n');
+        }
+}
+
+void packet_print( rc_packet *packet )
+{
+        packet_print_nl( packet, 1 );
 }
 
 rc_packet *packet_build(int id, int cmd, char *s1)
@@ -573,7 +603,8 @@ rc_packet *packet_build(int id, int cmd, char *s1)
 	packet.size = sizeof(int) * 2 + s1_len + 2;
 	packet.id = id;
 	packet.cmd = cmd;
-	strncpy(packet.data, s1, DATA_BUFFSIZE);
+
+	strncpy(packet.data, s1, DATA_BUFFSIZE + 1);
 
 	return &packet;
 }
@@ -583,6 +614,7 @@ int rcon_auth(int sock, char *passwd)
 	int ret;
 
 	rc_packet *packet = packet_build(RCON_PID, RCON_AUTHENTICATE, passwd);
+
 	if (packet == NULL)
 		return 0;
 
@@ -601,24 +633,41 @@ int rcon_auth(int sock, char *passwd)
 int rcon_command(int sock, char *command)
 {
 	rc_packet *packet = packet_build(RCON_PID, RCON_EXEC_COMMAND, command);
-	if (packet == NULL) {
+
+        if (packet == NULL) {
 		global_connection_alive = 0;
 		return 0;
 	}
 
 	net_send_packet(sock, packet);
 
-	packet = net_recv_packet(sock);
-	if (packet == NULL)
-		return 0;
+        int done = 0;
+        while( ! done )
+        {
+                packet = net_recv_packet(sock);
+                if (packet == NULL)
+                        return 0;
 
-	if (packet->id != RCON_PID)
-		return 0;
+                if (packet->id != RCON_PID)
+                        return 0;
 
-	if (!global_silent_mode) {
-		if (packet->size > 10)
-		packet_print(packet);
-	}
+                /* RCON is 'broken' when it comes to responses larger that 4096 data bytes.  The
+                 * protocoal does not provide a way to say 'more is coming'.  Looking at the minecraft
+                 * server source though, it will send a packet with exactly 4096 bytes of data that
+                 * is not NULL terminated if there is > 4096 bytes.  Thus, if the response is
+                 * exactly the max packet size and the last byte is not a NULL then there is more
+                 * data coming.
+                 * Question: What happens when it is exactly a 4096 bytes response?
+                 */
+                if ( packet->size != RCON_PACKET_MAX_SIZE || packet->data[DATA_BUFFSIZE-1] == 0 ) {
+                        done = 1;
+                }
+
+                if (!global_silent_mode) {
+                        if (packet->size > RCON_PACKET_MIN_SIZE)
+                                packet_print_nl(packet, done);
+                }
+        }
 
 	return 1;
 }
