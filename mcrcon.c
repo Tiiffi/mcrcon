@@ -650,13 +650,6 @@ char **cmd_completion(const char *, int, int);
 char *cmd_generator(const char *, int);
 
 char *cmd[] = {
-    // "/effect",
-    // "/gamemode",
-    // "/kill",
-    // "/tp",
-    // "/stop",
-    // "exit",
-    // "quit",
     "/?",
     "/ability",
     "/advancement",
