@@ -803,7 +803,6 @@ int run_terminal_mode(int sock)
 	puts("Logged in. Type 'quit' or 'exit' to quit.");
 
 	while (global_connection_alive) {
-		// TODO (Bruce): add auto completion support
 		int len = get_line(command, DATA_BUFFSIZE);
 
 		if ((strcasecmp(command, "exit") && strcasecmp(command, "quit")) == 0)
