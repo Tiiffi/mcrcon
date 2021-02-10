@@ -831,7 +831,7 @@ int run_terminal_mode(int sock)
 // gets line from stdin and deals with rubbish left in the input buffer
 int get_line(char *buffer, int bsize)
 {
-    char *line = readline("RCON> ");
+    char *line = readline("");
 
 	if (line == NULL)
 		exit(EXIT_FAILURE);
