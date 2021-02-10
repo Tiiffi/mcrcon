@@ -14,7 +14,7 @@ LINKER =
 RM = rm -v -f
 
 CC = gcc
-CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s -lreadline
 EXTRAFLAGS ?= -fstack-protector-strong
 
 ifeq ($(OS), Windows_NT)
