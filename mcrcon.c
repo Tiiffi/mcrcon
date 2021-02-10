@@ -798,7 +798,6 @@ int run_terminal_mode(int sock)
 	puts("Logged in. Type 'quit' or 'exit' to quit.");
 
 	while (global_connection_alive) {
-		putchar('>');
 		fflush(stdout);
 		int len = get_line(command, DATA_BUFFSIZE);
 
@@ -831,7 +830,7 @@ int run_terminal_mode(int sock)
 // gets line from stdin and deals with rubbish left in the input buffer
 int get_line(char *buffer, int bsize)
 {
-    char *line = readline("");
+    char *line = readline(">");
 
 	if (line == NULL)
 		exit(EXIT_FAILURE);
