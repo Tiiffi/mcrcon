@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -834,6 +835,7 @@ int get_line(char *buffer, int bsize)
 
 	if (line == NULL)
 		exit(EXIT_FAILURE);
+	add_history(line);
 	strncpy(buffer, line, bsize);
 	free(line);
 
