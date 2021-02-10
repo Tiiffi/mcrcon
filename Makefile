@@ -15,6 +15,7 @@ RM = rm -v -f
 
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
+LIBS = -lreadline
 EXTRAFLAGS ?= -fstack-protector-strong
 
 ifeq ($(OS), Windows_NT)
@@ -32,7 +33,7 @@ endif
 all: $(EXENAME)
 
 $(EXENAME): mcrcon.c
-	$(CROSS_COMPILE)$(CC) $(CFLAGS) $(EXTRAFLAGS) -o $@ $< $(LINKER)
+	$(CROSS_COMPILE)$(CC) $(CFLAGS) $(EXTRAFLAGS) -o $@ $< $(LINKER) $(LIBS)
 
 ifneq ($(OS), Windows_NT)
 .PHONY: install

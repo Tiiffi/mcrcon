@@ -20,16 +20,16 @@
  *   3. This notice may not be removed or altered from any source
  *   distribution.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
-#include <signal.h>
 #include <errno.h>
-#include <unistd.h>
 #include <limits.h>
+#include <readline/readline.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <unistd.h>
 
 #ifdef _WIN32
     // for name resolving on windows
@@ -60,7 +60,7 @@
 #define DATA_BUFFSIZE 4096
 
 // rcon packet structure
-typedef struct _rc_packet {
+typedef struct {
     int size;
     int id;
     int cmd;
@@ -70,7 +70,7 @@ typedef struct _rc_packet {
 
 
 // ===================================
-//  FUNCTION DEFINITIONS              
+//  FUNCTION DEFINITIONS
 // ===================================
 
 // Network related functions
@@ -133,6 +133,7 @@ void sighandler(/*int sig*/)
 
 #define MAX_WAIT_TIME 600
 
+// parse and check 'max wait time' passed by command line
 unsigned int mcrcon_parse_seconds(char *str)
 {
 	char *end;
@@ -163,7 +164,7 @@ int main(int argc, char *argv[])
 	char *host = getenv("MCRCON_HOST");
 	char *pass = getenv("MCRCON_PASS");
 	char *port = getenv("MCRCON_PORT");
-	
+
 	if (!port) port = "25575";
 	if (!host) host = "localhost";
 
@@ -185,7 +186,7 @@ int main(int argc, char *argv[])
 			case 'r': global_raw_output = 1;        break;
 			case 'w':
 				global_wait_seconds = mcrcon_parse_seconds(optarg);
-			break;
+				break;
 
 			case 'v':
 				puts(VER_STR" - https://github.com/Tiiffi/mcrcon");
@@ -205,7 +206,8 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	if(optind == argc && terminal_mode == 0)
+	// if no more args are given after options, then enter terminal mode
+	if(optind == argc)
 		terminal_mode = 1;
 
 	// safety features to prevent "IO: Connection reset" bug on the server side
@@ -383,7 +385,7 @@ int net_send(int sd, const uint8_t *buff, size_t size)
 			return -1;
 
 		sent += result;
-		left -= sent;
+		left -= result;
 	}
 
 	return 0;
@@ -392,16 +394,16 @@ int net_send(int sd, const uint8_t *buff, size_t size)
 int net_send_packet(int sd, rc_packet *packet)
 {
 	int len;
-	int total = 0;	// bytes we've sent
-	int bytesleft;	// bytes left to send 
+	int bytessent = 0;	// bytes we've sent
+	int bytesleft;	// bytes left to send
 	int ret = -1;
 
 	bytesleft = len = packet->size + sizeof(int);
 
-	while (total < len) {
-		ret = send(sd, (char *) packet + total, bytesleft, 0);
+	while (bytessent < len) {
+		ret = send(sd, (char *) packet + bytessent, bytesleft, 0);
 		if(ret == -1) break;
-		total += ret;
+		bytessent += ret;
 		bytesleft -= ret;
 	}
 
@@ -550,7 +552,7 @@ void packet_print(rc_packet *packet)
 			if ((unsigned char) packet->data[i] == 0xc2 && (unsigned char) packet->data[i+1] == 0xa7) {
 				i+=2;
 				continue;
-			}	
+			}
 			putchar(packet->data[i]);
 		}
 	}
@@ -646,9 +648,150 @@ int run_commands(int argc, char *argv[])
 	}
 }
 
+char **cmd_completion(const char *, int, int);
+char *cmd_generator(const char *, int);
+
+char *cmd[] = {
+    "/?",
+    "/ability",
+    "/advancement",
+    "/agent",
+    "/alwaysday",
+    "/attribute",
+    "/ban",
+    "/ban-ip",
+    "/banlist",
+    "/bossbar",
+    "/camerashake",
+    "/changesetting",
+    "/classroommode",
+    "/clear",
+    "/clearspawnpoint",
+    "/clone",
+    "/closechat",
+    "/closewebsocket",
+    "/code",
+    "/codebuilder",
+    "/connect",
+    "/data",
+    "/datapack",
+    "/daylock",
+    "/debug",
+    "/dedicatedwsserver",
+	"/defaultgamemode",
+	"/deop",
+	"/dialogue",
+	"/difficulty",
+	"/effect",
+	"/enableencryption",
+	"/enchant",
+	"/event",
+	"/execute",
+	"/experience",
+	"/fill"
+	"/fog",
+	"/forceload",
+	"/function",
+	"/gamemode",
+	"/gamerule",
+	"/getchunkdata",
+	"/getchunks",
+	"/geteduclientinfo",
+	"/geteduserverinfo",
+	"/getlocalplayername",
+	"/getspawnpoint",
+	"/gettopsolidblock",
+	"/give",
+	"/globalpause",
+	"/help",
+	"/immutableworld",
+	"/item",
+	"/kick",
+	"/kill",
+	"/lesson",
+	"/list",
+	"/listd",
+	"/locate",
+	"/locatebiome",
+	"/loot",
+	"/me",
+	"/mixer",
+	"/mobevent",
+	"/msg",
+	"/music",
+	"/op",
+	"/ops",
+	"/pardon",
+	"/pardon-ip",
+	"/particle",
+	"/permission",
+	"/playanimation",
+	"/playsound",
+	"/publish",
+	"/querytarget",
+	"/recipe",
+	"/reload",
+	"/remove",
+	"/replaceitem",
+	"/ride",
+	"/save",
+	"/save-all",
+	"/save-off",
+	"/save-on",
+	"/say",
+	"/schedule",
+	"/scoreboard",
+	"/seed",
+	"/setblock",
+	"/setidletimeout",
+	"/setmaxplayers",
+	"/setworldspawn",
+	"/spawnitem",
+	"/spawnpoint",
+	"/spectate",
+	"/spreadplayers",
+	"/stop",
+	"/stopsound",
+	"/structure",
+	"/summon",
+	"/tag",
+	"/takepicture",
+	"/team",
+	"/teammsg",
+	"/teleport",
+	"/tell",
+	"/tellraw",
+	"/testfor",
+	"/testforblock",
+	"/testforblocks",
+	"/tickingarea",
+	"/time",
+	"/time",
+	"/tittle",
+	"/titleraw",
+	"/tm",
+	"/toggledownfall",
+	"/tp",
+	"/trigger",
+	"/videostream",
+	"/w",
+	"/wb",
+	"/weather",
+	"/whitelist",
+	"/worldborder",
+	"/worldbuilder",
+	"/wsserver",
+	"/xp",
+	"quit",
+	"exit",
+	NULL
+};
+
 // interactive terminal mode
 int run_terminal_mode(int sock)
 {
+	rl_attempted_completion_function = cmd_completion;
+
 	int ret = 0;
 	char command[DATA_BUFFSIZE] = {0x00};
 
@@ -670,7 +813,7 @@ int run_terminal_mode(int sock)
 
 		/* Special case for "stop" command to prevent server-side bug.
 		 * https://bugs.mojang.com/browse/MC-154617
-		 * 
+		 *
 		 * NOTE: This is hacky workaround which should be handled better to
 		 *       ensure compatibility with other servers using source RCON.
 		 * NOTE: strcasecmp() is POSIX function.
@@ -688,9 +831,12 @@ int run_terminal_mode(int sock)
 // gets line from stdin and deals with rubbish left in the input buffer
 int get_line(char *buffer, int bsize)
 {
-	char *ret = fgets(buffer, bsize, stdin);
-	if (ret == NULL)
+    char *line = readline("RCON> ");
+
+	if (line == NULL)
 		exit(EXIT_FAILURE);
+	strncpy(buffer, line, bsize);
+	free(line);
 
 	if (buffer[0] == 0)
 		global_connection_alive = 0;
@@ -700,11 +846,34 @@ int get_line(char *buffer, int bsize)
 
 	int len = strlen(buffer);
 
-	// clean input buffer if needed 
+	// clean input buffer if needed
 	if (len == bsize - 1) {
 		int ch;
 		while ((ch = getchar()) != '\n' && ch != EOF);
 	}
 
 	return len;
+}
+
+char **cmd_completion(const char *text, int start, int end) {
+    rl_attempted_completion_over = 1;
+    return rl_completion_matches(text, cmd_generator);
+}
+
+char *cmd_generator(const char *text, int state) {
+    static int list_index, len;
+    char *name;
+
+    if (!state) {  // if state == 0
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while ((name = cmd[list_index++])) {
+        if (strncmp(name, text, len) == 0) {
+            return strdup(name);
+        }
+    }
+
+    return NULL;
 }
