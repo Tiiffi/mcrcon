@@ -167,6 +167,10 @@ int main(int argc, char *argv[])
 	if (!port) port = "25575";
 	if (!host) host = "localhost";
 
+	// disable output buffering (https://github.com/Tiiffi/mcrcon/pull/39)
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
+
 	if(argc < 1 && pass == NULL) usage();
 
 	// default getopt error handler enabled
@@ -557,8 +561,6 @@ void packet_print(rc_packet *packet)
 
 	// print newline if string has no newline
 	if (packet->data[i-1] != 10 && packet->data[i-1] != 13) putchar('\n');
-
-	fflush(stdout);
 }
 
 rc_packet *packet_build(int id, int cmd, char *s1)
@@ -656,7 +658,7 @@ int run_terminal_mode(int sock)
 
 	while (global_connection_alive) {
 		putchar('>');
-		fflush(stdout);
+
 		int len = get_line(command, DATA_BUFFSIZE);
 
 		if ((strcasecmp(command, "exit") && strcasecmp(command, "quit")) == 0)
