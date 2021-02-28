@@ -51,6 +51,27 @@ MCRCON_HOST
 MCRCON_PORT
 MCRCON_PASS
 ```
+
+#### Docker usage
+
+_See "Usage" for commands._
+
+If you want use rcon with docker, you can do it via script [docker.sh](./docker.sh): it will start an interactive rcon terminal.
+Before starting the script, make you sure to edit properly the [env file](./docker.env) with your arguments.
+
+```
+./docker.sh
+```
+
+Instead, if you want use it as oneshot command, after build you can launch it like below reported:
+
+```
+docker run -it --rm --env-file docker.env tiiffi/mcrcon:latest "say Hello Minecraft World"
+```
+
+Note: `--rm` arguments helps you to clean docker workspace
+
+
 ###### Notes:
 - mcrcon will start in terminal mode if no commands are given
 - Command-line options will override environment variables
