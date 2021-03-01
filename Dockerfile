@@ -1,11 +1,11 @@
-FROM gcc:10
+FROM alpine:3
 
 # Default variables (see docker.env and README.md) - get latest mcrcon version
 ARG MCRCON_HOST=localhost
 ARG MCRCON_PORT=25575
 ARG MCRCON_PASS
 
-RUN apt-get update && apt-get -y install wget tar make musl-dev && rm -rf /var/lib/apt/lists/*
+RUN apk --update-cache --no-cache add build-base musl-dev
 
 ADD ./* /tmp/
 
