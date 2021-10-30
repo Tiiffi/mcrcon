@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020, Tiiffi <tiiffi at gmail>
+ * Copyright (c) 2012-2021, Tiiffi <tiiffi at gmail>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -24,8 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
+#include <strings.h>
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
@@ -47,7 +47,7 @@
     #include <netdb.h>
 #endif
 
-#define VERSION "0.7.1"
+#define VERSION "0.7.2"
 #define IN_NAME "mcrcon"
 #define VER_STR IN_NAME" "VERSION" (built: "__DATE__" "__TIME__")"
 
@@ -123,8 +123,11 @@ void exit_proc(void)
 }
 
 // Check windows & linux behaviour !!!
-void sighandler(/*int sig*/)
+void sighandler(int sig)
 {
+	if (sig == SIGINT)
+		putchar('\n');
+
 	global_connection_alive = 0;
 	#ifndef _WIN32
 	    exit(EXIT_SUCCESS);
@@ -166,6 +169,10 @@ int main(int argc, char *argv[])
 	
 	if (!port) port = "25575";
 	if (!host) host = "localhost";
+
+	// disable output buffering (https://github.com/Tiiffi/mcrcon/pull/39)
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 
 	if(argc < 1 && pass == NULL) usage();
 
@@ -238,10 +245,7 @@ int main(int argc, char *argv[])
 		exit_code = EXIT_FAILURE;
 	}
 
-	net_close(global_rsock);
-	global_rsock = -1;
-
-	return exit_code;
+	exit(exit_code);
 }
 
 void usage(void)
@@ -429,6 +433,7 @@ rc_packet *net_recv_packet(int sd)
 		return NULL;
 	}
 
+	// NOTE(Tiiffi): This should fail if size is out of spec!
 	if (psize < 10 || psize > DATA_BUFFSIZE) {
 		fprintf(stderr, "Warning: invalid packet size (%d). Must over 10 and less than %d.\n", psize, DATA_BUFFSIZE);
 
@@ -484,7 +489,7 @@ void print_color(int color)
 		"\033[0;1;30m", /* 08 DGREY     0x38 */
 		"\033[0;1;34m", /* 09 LBLUE     0x39 */
 		"\033[0;1;32m", /* 10 LGREEN    0x61 */
-		"\033[0:1;36m", /* 11 LCYAN     0x62 */
+		"\033[0;1;36m", /* 11 LCYAN     0x62 */
 		"\033[0;1;31m", /* 12 LRED      0x63 */
 		"\033[0;1;35m", /* 13 LPURPLE   0x64 */
 		"\033[0;1;33m", /* 14 YELLOW    0x65 */
@@ -564,16 +569,16 @@ rc_packet *packet_build(int id, int cmd, char *s1)
 	static rc_packet packet = {0, 0, 0, { 0x00 }};
 
 	// size + id + cmd + s1 + s2 NULL terminator
-	int s1_len = strlen(s1);
-	if (s1_len > DATA_BUFFSIZE) {
-		fprintf(stderr, "Warning: Command string too long (%d). Maximum allowed: %d.\n", s1_len, DATA_BUFFSIZE);
+	int len = strlen(s1);
+	if (len >= DATA_BUFFSIZE) {
+		fprintf(stderr, "Warning: Command string too long (%d). Maximum allowed: %d.\n", len, DATA_BUFFSIZE - 1);
 		return NULL;
 	}
 
-	packet.size = sizeof(int) * 2 + s1_len + 2;
+	packet.size = sizeof(int) * 2 + len + 2;
 	packet.id = id;
 	packet.cmd = cmd;
-	strncpy(packet.data, s1, DATA_BUFFSIZE);
+	strncpy(packet.data, s1, DATA_BUFFSIZE - 1);
 
 	return &packet;
 }
@@ -650,19 +655,18 @@ int run_terminal_mode(int sock)
 	int ret = 0;
 	char command[DATA_BUFFSIZE] = {0x00};
 
-	puts("Logged in. Type 'quit' or 'exit' to quit.");
+	puts("Logged in.\nType 'Q' or press Ctrl-D / Ctrl-C to disconnect.");
 
 	while (global_connection_alive) {
 		putchar('>');
+
 		int len = get_line(command, DATA_BUFFSIZE);
-
-		if ((strcasecmp(command, "exit") && strcasecmp(command, "quit")) == 0)
+		if (len < 1) continue; 
+	
+		if (strcasecmp(command, "Q") == 0)
 			break;
 
-		if(command[0] == 'Q' && command[1] == 0)
-			break;
-
-		if(len > 0 && global_connection_alive)
+		if (len > 0 && global_connection_alive)
 			ret += rcon_command(sock, command);
 
 		/* Special case for "stop" command to prevent server-side bug.
@@ -676,7 +680,7 @@ int run_terminal_mode(int sock)
 			break;
 		}
 
-		command[0] = len = 0;
+		//command[0] = len = 0;
 	}
 
 	return ret;
@@ -686,11 +690,14 @@ int run_terminal_mode(int sock)
 int get_line(char *buffer, int bsize)
 {
 	char *ret = fgets(buffer, bsize, stdin);
-	if (ret == NULL)
-		exit(EXIT_FAILURE);
-
-	if (buffer[0] == 0)
-		global_connection_alive = 0;
+	if (ret == NULL) {
+		if (ferror(stdin)) {
+			fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		putchar('\n');
+		exit(EXIT_SUCCESS);
+	}
 
 	// remove unwanted characters from the buffer
 	buffer[strcspn(buffer, "\r\n")] = '\0';
