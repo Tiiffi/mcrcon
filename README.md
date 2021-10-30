@@ -76,8 +76,7 @@ rcon.password=your_rcon_pasword
 ##### Contact:
 
 * WWW:            https://github.com/Tiiffi/mcrcon/
-* MAIL:           tiiffi at gmail
-* IRC:            tiiffi @ quakenet
+* MAIL:           tiiffi+mcrcon at gmail
 * BUG REPORTS:    https://github.com/Tiiffi/mcrcon/issues/
 
 ---

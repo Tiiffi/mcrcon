@@ -1,5 +1,14 @@
 #### Version history:
 
+###### 0.7.2
+ - Quit gracefully when Ctrl-D or Ctrl+C is pressed
+ - Remove "exit" and "quit" as quitting commands
+    * these are actual rcon commands on some servers
+ - Suppress compiler warning (strncpy)
+ - fix erroneous string length in packet building function
+ - Fix typo in ANSI escape sequence for LCYAN
+ - Make stdout and stderr unbuffered
+
 ###### 0.7.1
  - Deprecate `-i` flag for invoking terminal mode
  - Add workaround to prevent server-side bug.
