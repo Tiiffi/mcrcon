@@ -24,8 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
+#include <strings.h>
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
@@ -123,8 +123,11 @@ void exit_proc(void)
 }
 
 // Check windows & linux behaviour !!!
-void sighandler(/*int sig*/)
+void sighandler(int sig)
 {
+	if (sig == SIGINT)
+		putchar('\n');
+
 	global_connection_alive = 0;
 	#ifndef _WIN32
 	    exit(EXIT_SUCCESS);
@@ -242,10 +245,7 @@ int main(int argc, char *argv[])
 		exit_code = EXIT_FAILURE;
 	}
 
-	net_close(global_rsock);
-	global_rsock = -1;
-
-	return exit_code;
+	exit(exit_code);
 }
 
 void usage(void)
@@ -433,6 +433,7 @@ rc_packet *net_recv_packet(int sd)
 		return NULL;
 	}
 
+	// NOTE(Tiiffi): This should fail if size is out of spec!
 	if (psize < 10 || psize > DATA_BUFFSIZE) {
 		fprintf(stderr, "Warning: invalid packet size (%d). Must over 10 and less than %d.\n", psize, DATA_BUFFSIZE);
 
@@ -654,20 +655,18 @@ int run_terminal_mode(int sock)
 	int ret = 0;
 	char command[DATA_BUFFSIZE] = {0x00};
 
-	puts("Logged in. Type 'quit' or 'exit' to quit.");
+	puts("Logged in.\nType 'Q' or press Ctrl-D / Ctrl-C to disconnect.");
 
 	while (global_connection_alive) {
 		putchar('>');
 
 		int len = get_line(command, DATA_BUFFSIZE);
-
-		if ((strcasecmp(command, "exit") && strcasecmp(command, "quit")) == 0)
+		if (len < 1) continue; 
+	
+		if (strcasecmp(command, "Q") == 0)
 			break;
 
-		if(command[0] == 'Q' && command[1] == 0)
-			break;
-
-		if(len > 0 && global_connection_alive)
+		if (len > 0 && global_connection_alive)
 			ret += rcon_command(sock, command);
 
 		/* Special case for "stop" command to prevent server-side bug.
@@ -681,7 +680,7 @@ int run_terminal_mode(int sock)
 			break;
 		}
 
-		command[0] = len = 0;
+		//command[0] = len = 0;
 	}
 
 	return ret;
@@ -691,11 +690,14 @@ int run_terminal_mode(int sock)
 int get_line(char *buffer, int bsize)
 {
 	char *ret = fgets(buffer, bsize, stdin);
-	if (ret == NULL)
-		exit(EXIT_FAILURE);
-
-	if (buffer[0] == 0)
-		global_connection_alive = 0;
+	if (ret == NULL) {
+		if (ferror(stdin)) {
+			fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		putchar('\n');
+		exit(EXIT_SUCCESS);
+	}
 
 	// remove unwanted characters from the buffer
 	buffer[strcspn(buffer, "\r\n")] = '\0';
