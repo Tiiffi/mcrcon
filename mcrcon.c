@@ -34,17 +34,19 @@
 #ifdef _WIN32
     // for name resolving on windows
     // enable this if you get compiler whine about getaddrinfo() on windows
-    //#define _WIN32_WINNT 0x0501
+    // #define _WIN32_WINNT 0x0501
 
     #include <ws2tcpip.h>
     #include <winsock2.h>
     #include <windows.h>
+
 #else
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
     #include <netdb.h>
+	#include <termios.h>
 #endif
 
 #define VERSION "0.7.2"
@@ -59,6 +61,8 @@
 
 #define DATA_BUFFSIZE 4096
 
+#define MAX_PASSWORD_LENGTH 1024
+
 // rcon packet structure
 typedef struct _rc_packet {
     int size;
@@ -70,7 +74,7 @@ typedef struct _rc_packet {
 
 
 // ===================================
-//  FUNCTION DEFINITIONS              
+//  FUNCTION DEFINITIONS
 // ===================================
 
 // Network related functions
@@ -92,6 +96,7 @@ void        print_color(int color);
 int         get_line(char *buffer, int len);
 int         run_terminal_mode(int sock);
 int         run_commands(int argc, char *argv[]);
+char*		get_pass(char* host);
 
 // Rcon protocol related functions
 rc_packet*  packet_build(int id, int cmd, char *s1);
@@ -166,7 +171,7 @@ int main(int argc, char *argv[])
 	char *host = getenv("MCRCON_HOST");
 	char *pass = getenv("MCRCON_PASS");
 	char *port = getenv("MCRCON_PORT");
-	
+
 	if (!port) port = "25575";
 	if (!host) host = "localhost";
 
@@ -208,8 +213,15 @@ int main(int argc, char *argv[])
 	}
 
 	if (pass == NULL) {
-		puts("You must give password (-p password).\nTry 'mcrcon -h' or 'man mcrcon' for help.");
-		return 0;
+		
+		// prompt user for password so it isn't displayed in plaintext
+		pass = get_pass(host);
+
+		if (!pass)
+		{
+			puts("You must give password (-p password).\nTry 'mcrcon -h' or 'man mcrcon' for help.");
+			return 0;
+		}
 	}
 
 	if(optind == argc && terminal_mode == 0)
@@ -397,7 +409,7 @@ int net_send_packet(int sd, rc_packet *packet)
 {
 	int len;
 	int total = 0;	// bytes we've sent
-	int bytesleft;	// bytes left to send 
+	int bytesleft;	// bytes left to send
 	int ret = -1;
 
 	bytesleft = len = packet->size + sizeof(int);
@@ -555,7 +567,7 @@ void packet_print(rc_packet *packet)
 			if ((unsigned char) packet->data[i] == 0xc2 && (unsigned char) packet->data[i+1] == 0xa7) {
 				i+=2;
 				continue;
-			}	
+			}
 			putchar(packet->data[i]);
 		}
 	}
@@ -649,6 +661,48 @@ int run_commands(int argc, char *argv[])
 	}
 }
 
+// prompt user for password while hiding input
+char* get_pass(char* host)
+{
+	char* pass = malloc(MAX_PASSWORD_LENGTH);
+
+	// hide password input
+	// https://stackoverflow.com/questions/6899025/hide-user-input-on-password-prompt
+	#ifdef _WIN32
+		HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+		DWORD mode = 0;
+		GetConsoleMode(hStdin, &mode);
+		SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
+	#else
+		struct termios oldt;
+		tcgetattr(STDIN_FILENO, &oldt);
+		struct termios newt = oldt;
+		newt.c_lflag &= ~ECHO;
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	#endif
+
+	printf("Enter password for %s:", host);
+
+	char c;
+	int i = 0;
+
+	while ( (c = getc(stdin)) != '\n' && i < MAX_PASSWORD_LENGTH)
+		pass[i++] = c;
+
+	pass[i] = '\0';
+
+	// reset console mode and hash password
+	#ifdef _WIN32
+		SetConsoleMode(hStdin, mode);
+	#else
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+	#endif
+
+	putc('\n', stdout);
+
+	return pass;
+}
+
 // interactive terminal mode
 int run_terminal_mode(int sock)
 {
@@ -671,7 +725,7 @@ int run_terminal_mode(int sock)
 
 		/* Special case for "stop" command to prevent server-side bug.
 		 * https://bugs.mojang.com/browse/MC-154617
-		 * 
+		 *
 		 * NOTE: This is hacky workaround which should be handled better to
 		 *       ensure compatibility with other servers using source RCON.
 		 * NOTE: strcasecmp() is POSIX function.
@@ -704,7 +758,7 @@ int get_line(char *buffer, int bsize)
 
 	int len = strlen(buffer);
 
-	// clean input buffer if needed 
+	// clean input buffer if needed
 	if (len == bsize - 1) {
 		int ch;
 		while ((ch = getchar()) != '\n' && ch != EOF);
