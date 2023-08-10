@@ -11,7 +11,7 @@ PREFIX ?= /usr/local
 
 INSTALL = install
 LINKER =
-RM = rm -v -f
+RM = rm -rfv
 
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os -s
@@ -24,7 +24,6 @@ ifeq ($(OS), Windows_NT)
 endif
 
 ifeq ($(shell uname), Darwin)
-	INSTALL = ginstall
 	CFLAGS = -std=gnu99 -Wall -Wextra -Wpedantic -Os
 endif
 
@@ -36,9 +35,10 @@ $(EXENAME): mcrcon.c
 
 ifneq ($(OS), Windows_NT)
 .PHONY: install
-install:
-	$(INSTALL) -vD $(EXENAME) $(DESTDIR)$(PREFIX)/bin/$(EXENAME)
-	$(INSTALL) -vD -m 0644 mcrcon.1 $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
+install: all
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -v $(EXENAME) $(DESTDIR)$(PREFIX)/bin/$(EXENAME)
+	$(INSTALL) -v -m 0644 mcrcon.1 $(DESTDIR)$(PREFIX)/share/man/man1/mcrcon.1
 	@echo "\nmcrcon installed. Run 'make uninstall' if you want to uninstall.\n"
 
 .PHONY: uninstall
