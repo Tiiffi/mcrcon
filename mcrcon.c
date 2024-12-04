@@ -95,16 +95,16 @@ void        packet_print(rc_packet *packet);
 bool        rcon_auth(int sock, char *passwd);
 int         rcon_command(int sock, char *command);
 
-
 // =============================================
 //  GLOBAL VARIABLES
 // =============================================
-static int flag_raw_output = 0;
-static int flag_silent_mode = 0;
-static int flag_disable_colors = 0;
-static int flag_wait_seconds = 0;
-static int global_connection_alive = 1;
-static int global_rsock;
+static int  flag_raw_output = 0;
+static int  flag_silent_mode = 0;
+static int  flag_disable_colors = 0;
+static int  flag_wait_seconds = 0;
+static int  global_connection_alive = 1;
+static bool global_valve_protocol = false;
+static int  global_rsock;
 
 #ifdef _WIN32
   // console coloring on windows
@@ -573,6 +573,7 @@ receive:
 	 * so we have to check packet type and try again if necessary.
 	 */
 	if (packet->cmd != RCON_AUTH_RESPONSE) {
+		global_valve_protocol = true;
 		goto receive;
 	}
 
@@ -580,7 +581,8 @@ receive:
 	return packet->id == -1 ? false : true;
 }
 
-// TODO: Add proper error handling and reporting!
+// TODO: Create function that sends two packets in one send() call
+//       This is important so multipacket guard packet is sent right after real packet
 int rcon_command(int sock, char *command)
 {
 	rc_packet *packet = packet_build(RCON_PID, RCON_EXEC_COMMAND, command);
@@ -594,21 +596,71 @@ int rcon_command(int sock, char *command)
 		return 0;
 	}
 
-	packet = net_recv_packet(sock);
-	if (packet == NULL) {
-		log_error("Error: net_recv_packet() failed!\n");
-		return 0;
+	// CAUTION: lets set this always true for testing
+	global_valve_protocol = true;
+
+	// Workaround to handle valve multipacket responses
+	// This one does not require using select()
+	if (global_valve_protocol) {
+		packet = packet_build(0xBADA55, 0xBADA55, "");
+		if (packet == NULL) {
+			log_error("Error: packet build() failed!\n");
+			return 0;
+		}
+
+		if (!net_send_packet(sock, packet)) {
+			log_error("Error: net_send_packet() failed!\n");
+			return 0;
+		}
 	}
 
-	if (packet->id != RCON_PID) {
-		log_error("Error: invalid packet id!\n");
-		return 0;
-	}
+	// initialize stuff for select()
+	fd_set read_fds;
+	FD_ZERO(&read_fds);
+	FD_SET(sock, &read_fds);
 
-	if (!flag_silent_mode) {
-		if (packet->size > 10)
-		packet_print(packet);
+	struct timeval timeout = {0};
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+
+	int incoming = 0;
+
+	do {
+		packet = net_recv_packet(sock);
+		if (packet == NULL) {
+			log_error("Error: net_recv_packet() failed!\n");
+			return 0;
+		}
+
+		// Check for packet id and multipacket guard id
+		if (packet->id != RCON_PID && packet->id != 0xBADA55) {
+			log_error("Error: invalid packet id!\n");
+			return 0;
+		}
+
+		// Break out if valve multipacket guard detected
+		if (global_valve_protocol) {
+			if (packet->id == 0xBADA55) break;
+		}
+
+		if (!flag_silent_mode) {
+			if (packet->size > 10)
+			packet_print(packet);
+		}
+
+		// NOTE: Workaround to prevent waiting for timeout.
+		//       This is not reliable way to detect last packet
+		if (global_valve_protocol == false && packet->size < MAX_PACKET_SIZE)
+			break;
+
+		int result = select(sock + 1, &read_fds, NULL, NULL, &timeout);
+		if (result == -1) {
+			log_error("Error: select() failed!\n");
+			return 0;
+		}
+		incoming = (result > 0 && FD_ISSET(sock, &read_fds));
 	}
+	while(incoming);
 
 	return 1;
 }
