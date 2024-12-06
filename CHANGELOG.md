@@ -1,13 +1,14 @@
 #### Version history:
 
-###### 0.7.3
+###### 0.8.0
+ - Implement support for multipacket responses
  - Add support to Valve style rcon authentication
  - Change maximum packet size to correct value (4096 -> 4106)
  - Print auth failed message to stderr instead of stdout
  - Fail immediately if received packet size is out of spec
  - Return proper exit code from run_terminal_mode()
  - Add error messages to rcon_command() function
- 
+
 ###### 0.7.2
  - Quit gracefully when Ctrl-D or Ctrl+C is pressed
  - Remove "exit" and "quit" as quitting commands
