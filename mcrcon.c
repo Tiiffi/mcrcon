@@ -479,9 +479,7 @@ void packet_print(rc_packet *packet)
 	uint8_t *data = packet->data;
 
 	if (flag_raw_output == 1) {
-		for (int i = 0; data[i] != 0; ++i) {
-			putchar(data[i]);
-		}
+		fputs((char *) data, stdout);
 		return;
 	}
 
@@ -578,8 +576,6 @@ receive:
 	return packet->id == -1 ? false : true;
 }
 
-// TODO: Create function that sends two packets in one send() call
-//       This is important so multipacket guard packet is sent right after real packet
 int rcon_command(int sock, char *command)
 {
 	rc_packet *packet = packet_build(RCON_PID, RCON_EXEC_COMMAND, command);
@@ -611,10 +607,10 @@ int rcon_command(int sock, char *command)
 	FD_ZERO(&read_fds);
 	FD_SET(sock, &read_fds);
 
-	// Set 1.5 second timeout in case there is no response for multipacket guard
+	// Set 5 second timeout
 	struct timeval timeout = {0};
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 500000;
+	timeout.tv_sec = 5;
+	timeout.tv_usec = 0;
 
 	int incoming = 0;
 
@@ -643,6 +639,7 @@ int rcon_command(int sock, char *command)
 			log_error("Error: select() failed!\n");
 			return 0;
 		}
+
 		incoming = (result > 0 && FD_ISSET(sock, &read_fds));
 	}
 	while(incoming);
