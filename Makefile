@@ -10,7 +10,7 @@ EXENAME = mcrcon
 PREFIX ?= /usr/local
 
 INSTALL = install
-LINKER =
+LINKER = -lreadline
 RM = rm -v -f
 
 CC = gcc
