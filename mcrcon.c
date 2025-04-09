@@ -451,7 +451,7 @@ rc_packet *net_recv_packet(int sd)
 	while (received < psize) {
 		ret = recv(sd, (char *) &packet + sizeof(int) + received, psize - received, 0);
 		if (ret == 0) { /* connection closed before completing receving */
-			fprintf(stderr, "Connection lost (2).\n");
+			fprintf(stderr, "Connection lost.\n");
 			global_connection_alive = 0;
 			return NULL;
 		}
@@ -468,7 +468,7 @@ int net_clean_incoming(int sd, int size)
 	int ret = recv(sd, tmp, size, 0);
 
 	if(ret == 0) {
-		fprintf(stderr, "Connection lost (3).\n");
+		fprintf(stderr, "Connection lost.\n");
 		global_connection_alive = 0;
 	}
 
