@@ -6,6 +6,12 @@ mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wik
 
 ### Installing:
 
+##### via docker:
+
+```yaml
+docker run -it Tiiffi/mcrcon:latest
+```
+
 ##### via packet manager:
 See https://pkgs.org/download/mcrcon for available packages in various Linux distros (note that available packages might be outdated).
 
